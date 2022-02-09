@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>yauv&#39;s blog</title>
+  
+  
+  <link href="https://yauv.com/atom.xml" rel="self"/>
+  
+  <link href="https://yauv.com/"/>
+  <updated>2022-02-09T15:39:07.552Z</updated>
+  <id>https://yauv.com/</id>
+  
+  <author>
+    <name>yauv</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>test</title>
+    <link href="https://yauv.com/testblog.html"/>
+    <id>https://yauv.com/testblog.html</id>
+    <published>2022-02-09T15:37:59.000Z</published>
+    <updated>2022-02-09T15:39:07.552Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;test1&lt;/p&gt;
+&lt;p&gt;test2&lt;/p&gt;
+&lt;p&gt;test3&lt;/p&gt;
+&lt;p&gt;test4&lt;/p&gt;
+&lt;p&gt;test5&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="test" scheme="https://yauv.com/categories/test/"/>
+    
+    
+    <category term="test" scheme="https://yauv.com/tags/test/"/>
+    
+  </entry>
+  
+</feed>

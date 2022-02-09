@@ -1,3 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
+  <entry>
+    <title>test</title>
+    <url>/testblog.html</url>
+    <content><![CDATA[<p>test1</p>
+<p>test2</p>
+<p>test3</p>
+<p>test4</p>
+<p>test5</p>
+<span id="more"></span>
+
+<p>test6</p>
+<p>test7</p>
+<hr />]]></content>
+      <categories>
+        <category>test</category>
+      </categories>
+      <tags>
+        <tag>test</tag>
+      </tags>
+  </entry>
 </search>
