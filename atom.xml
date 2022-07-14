@@ -3,11 +3,11 @@
   <title>yauv&#39;s blog</title>
   
   
-  <link href="https://yauv.com/atom.xml" rel="self"/>
+  <link href="https://yauv.me/atom.xml" rel="self"/>
   
-  <link href="https://yauv.com/"/>
-  <updated>2022-02-09T15:39:07.552Z</updated>
-  <id>https://yauv.com/</id>
+  <link href="https://yauv.me/"/>
+  <updated>2022-07-14T09:24:51.789Z</updated>
+  <id>https://yauv.me/</id>
   
   <author>
     <name>yauv</name>
@@ -17,25 +17,26 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>test</title>
-    <link href="https://yauv.com/testblog.html"/>
-    <id>https://yauv.com/testblog.html</id>
-    <published>2022-02-09T15:37:59.000Z</published>
-    <updated>2022-02-09T15:39:07.552Z</updated>
+    <title>NerbianRat样本分析报告</title>
+    <link href="https://yauv.me/NerbianRatSampleAnalysisReport.html"/>
+    <id>https://yauv.me/NerbianRatSampleAnalysisReport.html</id>
+    <published>2022-07-14T05:42:01.000Z</published>
+    <updated>2022-07-14T09:24:51.789Z</updated>
     
     
-    <summary type="html">&lt;p&gt;test1&lt;/p&gt;
-&lt;p&gt;test2&lt;/p&gt;
-&lt;p&gt;test3&lt;/p&gt;
-&lt;p&gt;test4&lt;/p&gt;
-&lt;p&gt;test5&lt;/p&gt;</summary>
+    <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发与&lt;a href=&quot;https://www.freebuf.com/articles/system/338610.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;Proofpoint的安全研究员发现并分析了这个新型恶意软件并命名为NerbianRAT，此恶意软件使用了反分析和反逆向功能，该恶意软件是使用Golang编写的64位程序，主要传播方式为冒充世界卫生组织发送的COVID-19相关的安全措施邮件，通过邮件附件中有VBA宏的Word文档传播。&lt;/p&gt;</summary>
     
     
     
-    <category term="test" scheme="https://yauv.com/categories/test/"/>
+    <category term="病毒分析" scheme="https://yauv.me/categories/%E7%97%85%E6%AF%92%E5%88%86%E6%9E%90/"/>
     
     
-    <category term="test" scheme="https://yauv.com/tags/test/"/>
+    <category term="NerbianRat" scheme="https://yauv.me/tags/NerbianRat/"/>
+    
+    <category term="golang" scheme="https://yauv.me/tags/golang/"/>
+    
+    <category term="逆向工程" scheme="https://yauv.me/tags/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B/"/>
     
   </entry>
   
