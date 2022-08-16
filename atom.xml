@@ -6,7 +6,7 @@
   <link href="https://yauv.me/atom.xml" rel="self"/>
   
   <link href="https://yauv.me/"/>
-  <updated>2022-07-14T09:24:51.789Z</updated>
+  <updated>2022-08-16T06:17:40.962Z</updated>
   <id>https://yauv.me/</id>
   
   <author>
@@ -17,11 +17,39 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Brute Ratel C4分析</title>
+    <link href="https://yauv.me/BruteRatelC4RedTeamToolsAnalysis.html"/>
+    <id>https://yauv.me/BruteRatelC4RedTeamToolsAnalysis.html</id>
+    <published>2022-08-16T14:10:43.000Z</published>
+    <updated>2022-08-16T06:17:40.962Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发与&lt;a href=&quot;https://www.freebuf.com/articles/system/341336.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;Brute Ratel C4是类似于Cobalt Strike的商业红队框架，每年的License收费为$2500，首个版本Brute Ratel C4 v0.2 (Prometheus)于2021年2月9日发布，截至发稿最新发布版本v1.1(Stoffel’s Escape)与2022年7月20日发布，相比与Cobalt Strike的知名度BRc4显然要低调的多，但是BRc4使用的技术和功能却丝毫不亚于CS，本次分析的样本使用的最终payload就是BRc4&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="样本分析" scheme="https://yauv.me/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="Brute Ratel C4" scheme="https://yauv.me/tags/Brute-Ratel-C4/"/>
+    
+    <category term="BRc4" scheme="https://yauv.me/tags/BRc4/"/>
+    
+    <category term="RedTeam" scheme="https://yauv.me/tags/RedTeam/"/>
+    
+    <category term="syscall" scheme="https://yauv.me/tags/syscall/"/>
+    
+    <category term="ReflectiveDLLInjection" scheme="https://yauv.me/tags/ReflectiveDLLInjection/"/>
+    
+  </entry>
+  
+  <entry>
     <title>NerbianRat样本分析报告</title>
     <link href="https://yauv.me/NerbianRatSampleAnalysisReport.html"/>
     <id>https://yauv.me/NerbianRatSampleAnalysisReport.html</id>
     <published>2022-07-14T05:42:01.000Z</published>
-    <updated>2022-07-14T09:24:51.789Z</updated>
+    <updated>2022-08-16T06:07:37.817Z</updated>
     
     
     <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发与&lt;a href=&quot;https://www.freebuf.com/articles/system/338610.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
@@ -29,7 +57,7 @@
     
     
     
-    <category term="病毒分析" scheme="https://yauv.me/categories/%E7%97%85%E6%AF%92%E5%88%86%E6%9E%90/"/>
+    <category term="样本分析" scheme="https://yauv.me/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"/>
     
     
     <category term="NerbianRat" scheme="https://yauv.me/tags/NerbianRat/"/>

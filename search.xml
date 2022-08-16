@@ -1,6 +1,312 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Brute Ratel C4分析</title>
+    <url>/BruteRatelC4RedTeamToolsAnalysis.html</url>
+    <content><![CDATA[<p><strong>本篇文章为本人原创，首发与<a href="https://www.freebuf.com/articles/system/341336.html">freebuf</a></strong></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Brute Ratel C4是类似于Cobalt Strike的商业红队框架，每年的License收费为$2500，首个版本Brute Ratel C4 v0.2 (Prometheus)于2021年2月9日发布，截至发稿最新发布版本v1.1(Stoffel’s Escape)与2022年7月20日发布，相比与Cobalt Strike的知名度BRc4显然要低调的多，但是BRc4使用的技术和功能却丝毫不亚于CS，本次分析的样本使用的最终payload就是BRc4</p>
+<span id="more"></span>
+
+<h1 id="样本运行流程图"><a href="#样本运行流程图" class="headerlink" title="样本运行流程图"></a>样本运行流程图</h1><p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Y73JP0TF1reovJWVRQHK9wukHkKSLT2n/20220816liuchengtu.png"></p>
+<h1 id="样本IOCs"><a href="#样本IOCs" class="headerlink" title="样本IOCs"></a>样本IOCs</h1><p>名称: Roshan_CV.iso<br>大小: 4839424 字节 (4726 KiB)<br>MD5: a7df3462a6dce565064cfe408557c4df<br>SHA1: 6b91bfc761fe958c8ac04dd403db284ccc3a530e<br>SHA256: 1fc7b0e1054d54ce8f1de0cc95976081c7a85c7926c03172a3ddaa672690042c</p>
+<p>名称: OneDrive.Update<br>大小: 277064 字节 (270 KiB)<br>MD5: d6eae771c6cb12e17028fa35e4fba295<br>SHA1: 70767d3f7ff7736063ee76c0d9c0e90ce895332b<br>SHA256: b5d1d3c1aec2f2ef06e7d0b7996bc45df4744934bd66266a6ebb02d70e35236e</p>
+<p>名称: OneDriveUpdater.exe<br>大小: 4200864 字节 (4102 KiB)<br>MD5: 792e95b64b9cf45ac8bc10d4d0f077c2<br>SHA1: e50af7ee7e0a323d8aa60b6d9b3d39ab33b004f5<br>SHA256: 60e64dd2c6d2ac6fe9b498fadac81bc34a725de5d893e7df8b2728d8dc5b192d</p>
+<p>名称: version.dll<br>大小: 259584 字节 (253 KiB)<br>MD5: 76fa734236daa023444dec26863401dc<br>SHA1: a68a1b7ca1d1ddd005fd10382bf6cd0b86e74e86<br>SHA256: ea2876e9175410b6f6719f80ee44b9553960758c7d0f7bed73c0fe9a78d8e669</p>
+<p>名称: vresion.dll<br>大小: 31496 字节 (30 KiB)<br>MD5: 17c1e1099b65051bb6dec71fea37315b<br>SHA1: 8ed26469afbd53da7749ef9c6ab8c7f010e9bb1e<br>SHA256: e549d528fee40208df2dd911c2d96b29d02df7bef9b30c93285f4a2f3e1ad5b0</p>
+<p>名称: Roshan-Bandara_CV_Dialog<br>大小: 3149 字节 (3.07 KiB)<br>MD5: 82eb32d941b6dd63957a37453c9b0333<br>SHA1: f27a374044c73a6a5b2d926bb9468daf570b8bfc<br>SHA256: 4466017fd40c4b5fa9923928b7be3acf03825b4dd8c5fcf088992aee398b8c2d</p>
+<h1 id="恶意代码分析"><a href="#恶意代码分析" class="headerlink" title="恶意代码分析"></a>恶意代码分析</h1><p>恶意样本是个iso文件，双击挂载iso，一共有5个文件，除了<code>Roshan-Bandara_CV_Dialog</code>这个快捷方式之外其他的文件都是隐藏文件（我开启了显示隐藏文件所以这里全部显示了）<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/pkcYVkL8r8c7onnwL9EF1w5vhw62dfkJ/2022081601.jpg"></p>
+<p>我们查看Roshan-Bandara_CV_Dialog快捷方式指向的目标<code>%windir%/system32/cmd.exe /c start OneDriveUpdater.exe</code>，主要就是调用cmd命令执行了隐藏文件OneDriveUpdater.exe，<code>cmd.exe /c</code>命令指定执行完后会自动关闭控制台窗口<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/dXX6kHDRNssWR81fTrWXJJm9gwPAatsv/2022081602.jpg"></p>
+<p>我们接着看这个快捷方式的图标文件，发现其图标文件指向<code>%ProgramFiles%\Microsoft Office\root\Office16\WINWORD.EXE</code>，由于本机没有装Office 2016所以此快捷方式的图标就无法显示，由此可见此次攻击样本十分有针对性<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/KsHlh1JQHhwYy5jOSj62iwYA7dOusMX6/2022081603.jpg"></p>
+<p>其中的vresion.dll和OneDriveUpdater.exe为白文件都有Microsoft的有效数字签名<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/FDzdbkWChdKB5NVd7EIFS2RtiAVhHt60/2022081604.jpg"></p>
+<p>其中的version.dll链接器版本14.29是使用1929 (Visual Studio 2019 Version 16.10 + 16.11)编译的64位DLL，可以看到编译时间戳为<code>2022-5-17 16:35:50</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/6ezQBopjS5renouXhLn8vqQi9MVfFwjw/2022081605.jpg"></p>
+<p>version.dll和vresion.dll的导出函数完全相同<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/bzwRWiPEWIi7WjoIrOh4yiG33qve9Muy/2022081606.jpg"></p>
+<p>OneDrive.Update是一个被加密的二进制文件，猜测可能是shellcode或者pe文件<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/wSH6uEsNOFFXtasfAxI3N7xFUr6jK9gx/2022081607.jpg"></p>
+<h2 id="stage0：version-dll代码分析"><a href="#stage0：version-dll代码分析" class="headerlink" title="stage0：version.dll代码分析"></a>stage0：version.dll代码分析</h2><p>接下来我们分析version.dll的DllMain函数，只调用了一个sub_180002090函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/oNr2ahqOQUkQL9kr6nvuWo7kJ4JwbsKG/2022081610.jpg"></p>
+<p>sub_180002090函数使用了WTSEnumerateProcessesA函数枚举进程</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/9GQCHrb9EyT8GbApR2j31gkY5Ir371XD/2022081611.jpg"></p>
+<p>循环查找<code>RuntimeBroker.exe</code>进程</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VAI0lG5aMATfMpv6mw3POgqP4j9MIa76/2022081612.jpg"></p>
+<p>读取加密文件<code>OneDrive.Update</code>到内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/mPg1SM2idgVMLLbhkwYqPgLkrChYUMnB/2022081613.jpg"></p>
+<p>控制台窗口打印字符串<code>&quot;Please wait...&quot;</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Wa7Qki8m7GJbkfvMeUh0nfBxW03Uemd2/2022081614.jpg"></p>
+<p>先调用了<code>NtDelayExecution</code>函数休眠了几秒，接着调用<code>NtOpenProcess</code>函数以<code>PROCESS_ALLACCESS</code>权限打开<code>RuntimeBroker.exe</code>进程</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/oAe2sVS5TvxVLXpOi01Lb86MW2Ma54r4/2022081615.jpg"></p>
+<p>此样本的NtOpenProcess函数实现，这些汇编代码特征让我想到了<a href="https://github.com/klezVirus/SysWhispers3">SysWhispers3</a>项目</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/zN58w0C6tC5fgYdVAiknz3zUacsxM1T2/2022081616.jpg"></p>
+<p>这是我使用SysWhispers3项目生成的NtOpenProcesss的syscall调用，发现除了SysWhispers3使用函数Hash方式之外汇编代码特征完全一致，可以判断此样本使用了SysWhispers3项目</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/DY21DuafAFXEwkJcjlUwnlyPHfeDKRhE/2022081617.jpg"></p>
+<p>接下来我们详细分析下首先<code>SW3_GetSyscallEGG_180001D20</code>函数参数为<code>ntop</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VudltGwDzUzIlOXX5CNVnrrDgozwbLGC/2022081618.jpg"></p>
+<p>主要逻辑是通过<code>gs:[60]</code>获取PEB，然后通过偏移找到<code>PEB-&gt;Ldr-&gt;InMemoryOrderModuleList</code>链表，并通过访问<code>LDR_DATA_TABLE_ENTRY-&gt;FullDllName</code> 字段使用_stricmp函数判断找到ntdll.dll</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/tT3fwcohOmDsWksUFXxEcU8ExesVIEhx/2022081619.jpg"></p>
+<p>接下来通过解析ntdll.dll的PE结构获取导出函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/e9MYysyNIENLX9bUfkgUmcmqvGINluzA/2022081620.jpg"></p>
+<p>第一个导出函数名称</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/7KqXu3nEKmYz8UvftALV7TKYK1zDgUP3/2022081621.jpg"></p>
+<p>memcmp函数对比直到找到导出函数NtOpenProcess</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YvGluzzghaz7NXhFkE0TJOaDahRNv9Nv/2022081622.jpg"></p>
+<p>最终获取到导出函数地址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VR7EpFdBgHGBWldDsahrWkJncFvGu8Se/2022081623.jpg"></p>
+<p>接下来通过搜索函数NtOpenProcess的OPCODE特征找到syscall（0F05）的地址（EGG）</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/5XbTOcDcEExCub2HWtwLBsQss3DakuFE/2022081624.jpg"></p>
+<p>接下来分析<code>SW3_GetSyscallNumber_180002000</code>函数，主要逻辑还是通过OPCODE特征搜索找到syscall id，关于syscall id对应的函数在不同windows版本下不同可以在<a href="https://j00ru.vexillium.org/syscalls/nt/64/">j00ru</a>的博客查询</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/xmvhX83sLp5tSexF3JwupUpsFW9D88HM/2022081625.jpg"></p>
+<p>此时RAX为NtOpenProcess函数的syscall id：26，r15为syscall的地址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/esSsRoJy0aQhhY6pryh5OUHkhKM4m5t4/2022081626.jpg"></p>
+<p>通过syscall调用NtOpenProcess函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/tlX9CzokPefcsGg6pzRXtd4p5dOU1CKW/2022081627.jpg"></p>
+<p>接下来使用硬编码的xor密钥<code>jikoewarfkmzsdlhfnuiwaejrpaw</code>解密<code>OneDrive.Update</code>，解密大小为0x493E0</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/sqUeL6YSvOfNL3fFMqVNFHp4RQY9DkHm/2022081628.jpg"></p>
+<p>调用了<code>NtCreateSection</code>函数创建<code>0x493E0</code>大小的<code>PAGE_EXECUTE_READWRITE</code>内存权限，<code>SECTION_MAP_READ | SECTION_MAP_WRITE | SECTION_MAP_EXECUTE</code>访问属性的section</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/cWV99tFuIk8xh7nu3uU4mM17PfLw1F5a/2022081629.jpg"></p>
+<p>接着调用<code>NtMapViewOfSection</code>函数将section映射到本进程虚拟内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YYyVcvWIfKLXylyRwEukCoHj4QkGyrTk/2022081630.jpg"></p>
+<p>并调用<code>NtMapViewOfSection</code>函数将section映射到<code>RuntimeBroker.exe</code>进程虚拟内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fr9Dt1NIWBBQtKNH37o1taXggvmBNom9/2022081631.jpg"></p>
+<p>使用memmove函数将解密后的shellcode复制到本进程section共享内存空间，此时section内存会同步映射到远程进程<code>RuntimeBroker.exe</code>进程虚拟内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/qhnJYmOrcL3Q7L3itrvBYzbBRwlAqLAD/2022081632.jpg"></p>
+<p>然后调用NtCreateThreadEx函数在RuntimeBroker.exe进程中创建远程线程执行注入的shellcode</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/eXlBYBySVCcOkpol8pRAGNyS7BH0DgrM/2022081633.jpg"></p>
+<p>我们使用processhack工具查看<code>RuntimeBroker.exe</code>进程内存可以看到shellcode已经注入成功</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/AMAUHbw4ftlpYP9wFMDIRmyhj2rd6ozE/2022081634.jpg"></p>
+<h2 id="stage1：OneDrive-Update代码分析"><a href="#stage1：OneDrive-Update代码分析" class="headerlink" title="stage1：OneDrive.Update代码分析"></a>stage1：OneDrive.Update代码分析</h2><p>为了方便调试我将stage0解密后的shellcode从内存中dump下来并使用自写的shellcode loader加载调试分析，shellcode开头有巨量的<code>mov</code>和<code>push</code>执行的组合，通过压入栈中的数据可以判断大致是在初始化数据和函数调用要用到的参数等等</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/HXTKTGSsbK3vW83eFRK1WxhiLrBUKx6S/2022081635.jpg"></p>
+<p>在偏移0x43750处才开始主要逻辑</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/OOqHoIY02Bjp8qNOOz4IXD5jfT16Fy5M/2022081636.jpg"></p>
+<p>可以看到刚刚压入栈中的众多数据包含了一个PE文件并且此PE文件的Dos头的MZSignature（0x5A4D）被抹除防止EDR进行内存扫描查杀，通过访问0x3C位置AddressOfNewExeHeader开始解析此PE文件</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/bumA705QuqgP0KY00lAIwuvgSe6rbWph/2022081637.jpg"></p>
+<p>最终获取导出函数的RVA：0x92E0</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/u4L1QnJdbKdjfFGvAIRvX80i03OWx0d9/2022081638.jpg"></p>
+<p>接下来的逻辑还是熟悉的通过<code>PEB-Ldr-&gt;InMemoryOrderModuleList</code>获取ntdll.dll的基址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/quFSRNufoi7qsQz1lW1CROOCViqyVKzP/2022081639.jpg"></p>
+<p>然后调用FindHashFunAddress_5137AE函数通过函数Hash获取对应函数的地址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/HBRFVyPH6uVaBYsGsDgdW0flEIw2CLuL/2022081640.jpg"></p>
+<p>通过解析ntdll.dll的PE结构获取导出函数名称表</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/KmqmI8RVwmhbEtoP1JNPBuJ2hMYBv6VN/2022081641.jpg"></p>
+<p>并对导出函数名进行ror13 Hash然后对比目标函数Hash直到找到需要的函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Q6BWVjYvqK2M9nemMjBFdLbixwL2quuK/2022081642.jpg"></p>
+<p>获取到需要的导出函数地址后会调用CheckFuninlineHook_51375B函数进行检查</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/hkkolE2slydel1Y6zwIQ27DNMwdVx5F7/2022081643.jpg"></p>
+<p>首先检查函数头是否被下了int3软件断点（0xCC），然后通过检测OPCODE编码E9（jmp）判断函数是否被EDR给inlineHook，如果函数正常则通过偏移获取函数的syscall id</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/0N0SmmbqVpYXo1vL9ixR27fg48C1tJEW/2022081644.jpg"></p>
+<p>接着将参数压栈，通过syscall调用<code>ZwAllocateVirtualMemory</code>申请<code>PAGE_READWRITE</code>权限的内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/znCT0rvWeyXyOKjUK00f5hza2N7WJr9z/2022081645.jpg"></p>
+<p>接着又申请了一块内存<code>PAGE_READWRITE</code>权限的内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/4DMwEziOz71QX8RuukDXPDWX7iccAgHL/2022081646.jpg"></p>
+<p>申请完内存后调用了CopyPeToAllocAddress_513815函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/1UXGJ75rfCsH4e1vagHHUtHcPXpUSx8r/2022081647.jpg"></p>
+<p>此函数将栈中的PE文件（0x3240）大小的内容以每次QWORD大小复制到申请的虚拟内存中</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/XYtv1i6BTH28pzCaGzmamr2TeLpzRTPA/2022081648.jpg"></p>
+<p>PE文件复制完成</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VJMRYv7METQBdMBvMkMPJSkNvfISHG0S/2022081649.jpg"></p>
+<p>接着调用 MemSetPeMemoryFeatures_513805函数将Dos头除了AddressOfNewExeHeader字段以外的内存置0，防止EDR扫描内存查杀</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/ffSHEk3Ve0aUinxwwLPLO2fJAvpmiiOS/2022081650.jpg"></p>
+<p>又调用了MemSetPeMemoryFeatures_513805函数将DosStub部分的内存置0</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/QdWtPnYJQkaTVzySbAdeb3PL4iw8zACq/2022081651.jpg"></p>
+<p>接着调用CopyBase64ToAllocAddress_513820函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YvJrJAEvCQkYfp7NsaVwfQqoWjarR1iS/2022081652.jpg"></p>
+<p>将0x148字节大小的Base64编码数据复制到申请的第二块虚拟内存中</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/8uBVk4sxHNfgpfNqx3581AL9KH5rLezc/2022081653.jpg"></p>
+<p>复制完内存后还是通过调用FindHashFunAddress_5137AE函数通过函数Hash获取ZwProtectVirtualMemory函数地址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/1yBtJAfRF8zlzCVT7yYw18ewJgyEy7q6/2022081654.jpg"></p>
+<p>调用ZwProtectVirtualMemory将存放PE文件那块内存属性改为<code>PAGE_EXECUTE_READ</code>属性</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/XDoHP1KLy26XeIgvWrsOGPOUzf3LASko/2022081655.jpg"></p>
+<p>获取了ZwCreateThreadEx的syscall id</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/9niKycraf9n6Anf6NixPXdQzt8Idg4Tt/2022081656.jpg"></p>
+<p>调用ZwCreateThreadEx执行的函数为函数开头获取的导出函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/aDCuNiqjKusDRVEXOCGdBvo5HEYUkBem/2022081657.jpg"></p>
+<p>调用ZwWaitForSingleObject函数等待线程执行完毕</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/rq65VVVGGG59gpx8vpuWe4RAnzlOcktp/2022081658.jpg"></p>
+<h2 id="stage2：ReflectiveDLLInjection代码分析"><a href="#stage2：ReflectiveDLLInjection代码分析" class="headerlink" title="stage2：ReflectiveDLLInjection代码分析"></a>stage2：ReflectiveDLLInjection代码分析</h2><p>stage1创建的线程执行的函数入口，搜索内存找到Nt头的Signature（PE）地址，通过kernel32.dll的hash获取基址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/gHGWXOFCrwhPxswspQ2fjyl6zBxmhi6S/2022081659.jpg"></p>
+<p>访问PEB-&gt;Ldr-&gt;InMemoryOrderModuleList并对FullDllName进行ror13 Hash</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/b8tO5kgDXivn3uMWG7v3auJBh5FyfAKj/2022081660.jpg"></p>
+<p>对比Hash正确</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/ODnjChHOYjBbIayNVU81CdhJxMAtbWmC/2022081661.jpg"></p>
+<p>获得kernel32.dll基址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/bVaLPCjXWknm3Xz5Gksm9ImEIX2m40ji/2022081662.jpg"></p>
+<p>函数GetNtdllAddress_66b2c0通过PEB加偏移获取ntdll.dll的基址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/OxBEuhF6k2qrEwBsejlc6yYaMC7Ved3I/2022081663.jpg"></p>
+<p>接下来调用GetFunAddressByHash_668050函数通过Hash获取6个对应函数的地址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/nVQPtwR1slb2XzCoL0wydeGoAEz5brXU/2022081664.jpg"></p>
+<p>通过解析kernel32.dll的PE结构导出表，对导出函数进行Hash对比找到对应的函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/2n0Rfnpwo54QgeFMxH5zeuLr5IX4O2Tk/2022081665.jpg"></p>
+<p>成功获取LoadLibraryA函数地址</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Mv7wlTJjQNnL0Q9F2Tmb7mgFciAdWh0l/2022081666.jpg"></p>
+<p>获取完需要的函数地址之后，对于ntdll的导出函数进行inlineHook检测并动态获取对应的syscall id</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/9DbliXnhDOiIQ08J2Ip1nekJ0gX2xr4p/2022081667.jpg"></p>
+<p>检测函数是否被下int3软件断点，并检测函数头前7个字节OPCODE是否和函数固定特征相同，最后通过固定偏移获取syscall id</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Tpp0jk9gf1KGvb0Ksk0bur1gf0kS40g3/2022081668.jpg"></p>
+<p>通过BRc4官网的功能介绍可知检测EDR的HOOK是BRc4的主要功能之一</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/evRcqHDuBTEC0rcQIaCKljOlCP75arqq/2022081669.jpg"></p>
+<p>此时rax为动态获取的syscall id</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/QOrvhBbh9pVDHzGRYFAfpfhmbqfPFBw9/2022081670.jpg"></p>
+<p>通过此函数获取了4个ntdll的导出函数syscall id</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/HhwRUiBXIdUCfPscR7XMHCktJWW7ouDk/2022081671.jpg"></p>
+<p>syscall（间接系统调用）也是BRc4官网介绍的主要功能特征</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/N6vr5XiKu4KkkTEgfaJwK0BIBb1kRPpH/2022081672.jpg"></p>
+<p>调用NtSetInformationProcess函数并设置参数<code>PROCESS_INFOMATION_CLASS</code>为0x28</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/5I5wjcd9YOzT3QISLF3DvSKOjoCOFOAn/2022081673.jpg"></p>
+<p>通过syscall id调用NtSetInformationProcess函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/PE1nilWhqb4uFigwW9XOzAw5FI5EnIvj/2022081674.jpg"></p>
+<p>调用NtAllocateVirtualMemory函数申请了<code>PAGE_READWRITE</code>权限的内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/r8p0hN0lBl7CHulWkEbQBl0UmWMjwbXt/2022081675.jpg"></p>
+<p>syacall id调用NtAllocateVirtualMemory函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/MPbvOCsaXdWfrEcam7qyp0hSAWIddxrO/2022081676.jpg"></p>
+<p>接下来将PE头0x400字节复制到了新申请的内存，通过前面获取的函数地址和此复制操作有分析过类似样本的应该可以大致推断这是<a href="https://github.com/stephenfewer/ReflectiveDLLInjection/blob/master/dll/src/ReflectiveLoader.c">ReflectiveDLLInjection</a>（反射式注入），主要逻辑就是模拟系统的PE Loader将PE文件复制到可执行内存中并修复IAT处理重定位数据然后直接调用内存中的函数执行，虽然这是10年前发布的技术但metasploit和cobalt strike等等框架还是普遍有使用ReflectiveDLLInjection技术，此方式可以避免文件落地以减少EDR查杀</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/X3yDeTdB0168ReWghNpX3kssFmxhK8h1/2022081677.jpg"></p>
+<p>接着将全部section逐个复制到新内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/h2n5BuN3oYbM1W5V79WfoMSPl2hDRTkk/2022081678.jpg"></p>
+<p>复制下一个section</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/LpgC2XbzsgyfLXEnXBs1Xli5Flm6VPkJ/2022081679.jpg"></p>
+<p>复制完全部secsion后开始获取IAT函数地址填充修复IAT</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/RA5C2YzX6VMIp3VVR9k3XuGrXY9BuCPP/2022081680.jpg"></p>
+<p>循环直到修复完IAT</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/rFaNAYvo5fAsYxGLc0A63CUEWW2KcnCq/2022081681.jpg"></p>
+<p>修复重定位数据</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/NvM5cjnQJnTqomaqI9AYvyFjikQI6Hla/2022081682.jpg"></p>
+<p>调用NtFlushInstructionCache函数刷新缓存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vmKre3o4SUsgaMmGVubjIXKElwxBM8H1/2022081683.jpg"></p>
+<p>调用NtProtectVirtualMemory修改各个section的内存权限</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/mvDzxFFLTxhQeNlnIqiTdVsV75H7Q2Ce/2022081684.jpg"></p>
+<p>所有section被更改的内存权限</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/pL9n4J5sD2uv81QdfHSHNCYn8cXb33Gu/2022081685.jpg"></p>
+<p>我们使用processhack工具查看内存中各个区段的权限</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Dv70B8rgkDdwhcGYbG8yLBhCxseInVXx/2022081686.jpg"></p>
+<p>之后将PE头0x200字节内存置0，防止EDR扫描内存特征查杀</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/hhf2G9MWIYFq9hMtLu9zQSmCSzSepNpE/2022081687.jpg"></p>
+<p>最后调用dllmain</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/krpgAYFX0jlul5V5Xq08M6hiqVTj3T2S/2022081688.jpg"></p>
+<h2 id="stage3：DllPayload代码分析"><a href="#stage3：DllPayload代码分析" class="headerlink" title="stage3：DllPayload代码分析"></a>stage3：DllPayload代码分析</h2><p>我们将内存中的PE文件dump出来，可以看到此PE文件为MinGW-w64编译的x64 DLL</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/suIHrPux8ARNsIzdDBx8KwHsMH3i2wVS/2022081689.jpg"></p>
+<p>编译时间戳为<code>2022-3-26 4:51:36</code>，一共有11个sections</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/H75i2Lg31opJ99LxHbbCPqPFTl7VGubO/2022081690.jpg"></p>
+<p>有一个无名导出函数为ReflectiveDLLInjection</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/8P2eSqllRFXgETIwwQ7qmoHcssKTeqct/2022081691.jpg"></p>
+<p>接下来我们分析dllmain的两个函数sub_7A1500和sub_7A1FB0</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/8P2eSqllRFXgETIwwQ7qmoHcssKTeqct/2022081691.jpg"></p>
+<p>sub_7A1500函数通过多个时间戳函数和进程线程ID异或获得12位的唯一ID</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/GflVSb4IGmp1s7fK0M2ughRKTkoxP4jp/2022081693.jpg"></p>
+<p>sub_7A1FB0函数主要检测确保内存中PE文件的<code>MZSignature（MZ）</code>和<code>NtHeaderSignature（PE00）</code>被抹除</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/56yEYYagh47Shf7qdYKWvtTeEcWLOQks/2022081694.jpg"></p>
+<p>接下来分析主要的核心函数，通过Hash获取VirtualFree函数释放了不需要的两处内存</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/1m73eiU3Ejz5VdFiVaTAIiL8Q5UkG511/2022081695.jpg"></p>
+<p>SendRecvDataC2Server_61F89060函数就是主要的加密解密和收发数据到C2服务器</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/AitAEKYWQXpAglfzi8FXsaOmihbdykRG/2022081696.jpg"></p>
+<p>GetAllNeedFunAddressbyHash_61F83A30获取了全部需要用到的函数地址，首先获取了kernel32.dll中需要的函数（由于篇幅限制只截取了部分获取dll导出函数的截图）</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/6BNeebq8CfUez2a5bLL63mDk134uzySV/2022081697.jpg"></p>
+<p>获取ntdll.dll中需要用到的函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/1m5ojX6guzMvPwfAPSyNrWCCl9Dbo1ND/2022081698.jpg"></p>
+<p>除了获取kelnel32.dll和kernelbase.dll和ntdll.dll基址使用了PEB加Hash方式，获取其它DLL都使用RC4密钥<code>bYXJm/3#M?:XyMBF</code>解密dll字符串并使用LoadLibraryA加载</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/k5Qxj2rXL048919MwcnPpTM361di7yqh/2022081699.jpg"></p>
+<p>获取通过syscall方式调用的ntdll.dll的导出函数syscall id</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/4CBAffwlnFB40iobkikMxs0HYKqSAcxS/20220816100.jpg"></p>
+<p>最后获取了wininet.dll中的导出函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/8siV3hnTmDVmpM2z1L6pw5X5akp7Cen0/20220816101.jpg"></p>
+<p>接下来DecryptBase64ReqHeader_61F88DC0函数主要解密了base64参数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/PQ2UAA8KBdJm4DcI23g17u2zWl0Qrr9X/20220816102.jpg"></p>
+<p>initDecBox9_61F8B100函数初始化了Brute Ratel C4自定义加密算法需要用的9个box[256]，初始化方法将box中每位元素减1</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/SI2rp362Ve4v16TBerD5zKSXugyINP7G/20220816103.jpg"></p>
+<p>此为其中一个box</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/oqPtzjMP7e3edr4ykC8kgyV5sfdfMqW0/20220816104.jpg"></p>
+<p>base64解码</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WeDmH1ho7XRq54aTkaSYJu06Wpg45PRt/20220816105.jpg"></p>
+<p>使用了CryptStringToBinaryA函数解码base64，可以看到解码后的数据还是乱码</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/JOhIvf7ulRETGWTwUVdmvSqioRPtQjVS/20220816106.jpg"></p>
+<p>之后使用rc4算法和硬编码的密钥<code>bYXJm/3#M?:XyMBF</code>解密后的数据可以看到有C2的ip地址User-Agent以及一些配置信息</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fzMB3xvfM7lXWd5Q3PCWtJI79PRXx7mG/20220816107.jpg"></p>
+<p>对于解密的User-Agent<code>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36</code>和Brute Ratel C4官网的Documentation的Listener Profile配置教程中User-Agent完全一致，可以判断此样本就是Brute Ratel C4生成的payload</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/c9cL9TKSdCECYMMSVBgVUIOiLUCOpbnD/20220816108.jpg"></p>
+<p>base64解码配置数据头的<code>eyJjb29raWUiOiI=</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YTVqBpUpNyEmFvz73OckohBUvlxDzYw4/20220816109.jpg"></p>
+<p>base64解码<code>In0=</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/dIW77tKXTrl5x1o6GmsWjlhTcOXR6cIB/20220816110.jpg"></p>
+<p>接下来GetSysInfo_61F99FC0函数主要是调用函数获取了用户名进程PID系统版本和位数等等信息</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/j8EbJX5WzRvJYPUhvLgf7w6LnRVN0F94/20220816111.jpg"></p>
+<p>获取当前进程的绝对路径</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/w4CtGsdM4FDiuz6niSl5qSe9M9t51Luh/20220816112.jpg"></p>
+<p>并使用base64编码</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/JhugO0pmu1rpAX8IyragDVF53S5gtuM2/20220816113.jpg"></p>
+<p>获取完数据初始化winsocket版本为2.2</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/BTwVMGtsS25U2PAjmRIq1IKNWx4fBphK/20220816114.jpg"></p>
+<p>函数EncryptDataAndConnectC2_61F8C760首先将将获取到的的系统信息格式化</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Nb2Bc8Ki4DiOLGhNHp6LkbOnvMOOMhYy/20220816115.jpg"></p>
+<p>格式化后的数据</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Ii45uQOzpofNYwI6pYGNxERoLu8PkhGs/20220816116.jpg"></p>
+<p>这里使用了Brute Ratel C4自定义的加密算法密钥<code>2Q73HI7Q0OD5BRN7</code>加密了数据</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WDfMP17Mk5Q4C92QYH3lmj9UIoq3OCR2/20220816117.jpg"></p>
+<p>关于Brute Ratel C4自定义的加密算法官网有进行说明，此加密用于加密和BRc4服务器之间的网络数据，这层加密是在ssl层之下</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/ML5lUKFeu7fEkr2LhjzpweyWJYIQy6hp/20220816118.jpg"></p>
+<p>对于Brute Ratel C4的自定义加密算法其实就是一个比较复杂的xor加密，这里使用我逆向还原的c++代码，关于完整的加密解密算法源码感兴趣的可以去我的<a href="https://github.com/yauv/brc4encrypt">github</a>，首先InitXorKeyBox函数根据key<code>2Q73HI7Q0OD5BRN7</code>生成160字节xorkey，获取key的后4字节传入replaceFourByteKey函数</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/OCaLLAcuX8TurBiOAoGKzD1RGqQQsJtz/20220816119.jpg"></p>
+<p>replaceFourByteKey函数首先将4字节的key进行ror 8，然后以第1个字节数据当作g_Box1的数组下标取出值异或g_Box2[g_replaceIndex]，g_replaceIndex默认值为1每次调用replaceFourByteKey函数值+1，这是第1个字节的处理方式</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/DAxH6alwOYaenvUVh3X47bwcEVNJIMm8/20220816120.jpg"></p>
+<p>2到4字节处理方式是直接将数据当作g_Box1的数组下标取出值直接进行替换</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Jqx76yLfd8PemB9dsPYmNmqhENrnCN8g/20220816121.jpg"></p>
+<p>replaceFourByteKey函数处理完的4字节数据会和key的前4字节异或生成第二组xorkey的前4字节</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/7ebBzFDjhkm6r51A1aG9zNGD4vY1yS1X/20220816122.jpg"></p>
+<p>第二组xorkey后面每4字节都是通过前4字节的key异或前一组xorkey的后4字节，这里<code>33 ^ 48</code>生成的就是第二组xorkey的第5个字节，剩下的以此类推</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/iDO16U3KBf8YFuPnBHFJCkYxyWjagAez/20220816123.jpg"></p>
+<p>通过以上流程一共176字节11组xorkey生成完毕</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/A18p1Cr85uh2j155LgHyKDvbwe4Nga0A/20220816124.jpg"></p>
+<p>接下来这是EncryptData函数的主要逻辑也就是全部的加密过程，每次加密16字节的明文数据</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/dLTfAD59iCEU7cjkYxONzndJ9q5muuqU/20220816125.jpg"></p>
+<p>首先调用MyXor函数使用第一组xorkey逐字节和明文数据进行异或</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/IggKFykyfrbowf5eBL26wl94zTVV6NUU/20220816126.jpg"></p>
+<p>接着replaceBoxData函数将数据作为g_Box1的数组下标进行替换</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/agxCBSeE2qRqzdcxOiN35LHakL45uEAK/20220816127.jpg"></p>
+<p>接着调用ByteOutOfOrder函数将数据乱序</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/z8RFvNXblW3FvYyY5W9T4KyKxThDMg10/20220816128.jpg"></p>
+<p>boxXorData函数一共是处理了16字节，我这里就贴了前4个字节的图，因为加密方式都相同主要就是数据作为g_box3和g_box4数组下标取出的值进行异或</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/NMmULqPIP7uBgbXRnTqPTSnXzRF6d7zW/20220816129.jpg"></p>
+<p>再次调用MyXor函数对数据进行异或，本次使用的就是第二组xorkey，这里循环9次前面的3个函数流程相同，MyXor函数一共使用9组xorkey进行异或加密</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WNjODz2UdWVMC0ustElwvU5cHo7lfXYw/20220816130.jpg"></p>
+<p>最后一层加密除了没有调用boxXorData函数其他的调用顺序和9次循环加密里的逻辑相同，至此16字节的明文数据加密完毕，开始加密下16字节的明文数据</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/CShdgUuDBr8YQSFarTY8vs9MbzDYXa3Q/20220816131.jpg"></p>
+<p>将加密后的数据进行base64编码</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/7Lny6w7WDGKHv3K75e2XCe7QSRyHSsjM/20220816132.jpg"></p>
+<p>使用InternetOpenW函数设置User-Agent为<code>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/FtHyiHAz70w4Hs89VBW2UgdY2nbeyaG0/20220816133.jpg"></p>
+<p>InternetConnectW函数设置C2的ip地址<code>174.129.157.251</code>和端口<code>443</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/5sR7lEYRQTTvGqvsv8wOJO5sN1V5HMhx/20220816134.jpg"></p>
+<p>HttpOpenRequestW函数涉资请求类型为POST并且请求路径为<code>/content.html</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/pPH2RwbnzwCR2dSGffYcvU2wMiSQCiTy/20220816135.jpg"></p>
+<p>InternetSetOptionW设置Internet选项为<code>INTERNET_OPTION_SECURITY_FLAGS</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/EczUQwvQwlWbdejRKBeWLyhJgIotLJuk/20220816136.jpg"></p>
+<p>HttpAddRequestHeadersW函数参数<code>HTTP_ADDREQ_FLAG_ADD</code></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/a1RL2uS0yusXwQMJ80HCL6Y9dV913Vey/20220816137.jpg"></p>
+<p>向C2发送POST请求</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/0awYuT7SriNDfL4XN4OYMa2zJoldLFWT/20220816138.jpg"></p>
+<p>COFFLoader（BOFs）功能部分代码</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/zQgcSx9JTCIJbMtp9t65ITxd6q8Wuejm/20220816139.jpg"></p>
+<p>C-Sharp内存加载部分代码</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/nltYbh4LmMM1jUlFshLRlzsllSkpOq6v/20220816140.jpg"></p>
+<p>由此分析对比官网介绍的C-Sharp、BOFs内存加载功能</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/1T6hWdwDryCeTVeg1kqzrieVM0EFB6OH/20220816141.jpg"></p>
+<p>ETW patch功能使用的方案是直接将EtwEventWrite函数头改写C3（ret）让函数直接返回，由于没有动态调试我通过自己写的ror13Hash小工具确认函数Hash</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/oQYKNV7G6vnqSM2fYeNeKCjs7RHSxRwb/20220816142.jpg"></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/0YagYKcrwsX8q1hvWOVWLvBfBBpiexhJ/20220816143.jpg"></p>
+<p>AMSI patch的方案是将AmsiScanBuffer函数头改写为<code>B8 57 00 07 80 C3</code>（mov eax,0x80070057;ret）</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/oMekluW6pnPjeXt2MeKQgD2SPzCTxJov/20220816144.jpg"></p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/bq6vo5kGkUqGoGeM9hyR40SB3HaU9yzA/20220816145.jpg"></p>
+<p>我们反汇编amsi.dll可知如果AmsiScanBuffer函数判断传入参数错误的话会跳过扫描分支过程直接将返回值0x80070057存放eax并返回，所以这里的patch方案也是直接将0x80070057存放eax并直接ret返回</p>
+<p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/w4oghz5hn3AnT2whoA4JyohtTU5WYSQO/20220816146.jpg"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Brute Ratel C4是一款非常优秀的商业红队C2框架，使用了众多用于规避和检测EDR的技术，在最新版的BRc4 v1.1（Stoffel’s Escape）的更新日志中作者宣布已经对核心程序进行了重写以隐藏内存的的几处痕迹，并且不再更新试用许可证，新申请试用许可证只会获得 v1.0.x 版本的最新更新，作者称此举是为了防止试用用户将最新的payloads上传到Virus Total，可见BRc4作者为了对抗EDR厂商获取最新的payloads分析以进行针对性查杀的努力，BRc4作者的总结很到位这是一场EDR和BRc4之间的猫捉老鼠游戏。</p>
+<hr />]]></content>
+      <categories>
+        <category>样本分析</category>
+      </categories>
+      <tags>
+        <tag>Brute Ratel C4</tag>
+        <tag>BRc4</tag>
+        <tag>RedTeam</tag>
+        <tag>syscall</tag>
+        <tag>ReflectiveDLLInjection</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NerbianRat样本分析报告</title>
     <url>/NerbianRatSampleAnalysisReport.html</url>
     <content><![CDATA[<p><strong>本篇文章为本人原创，首发与<a href="https://www.freebuf.com/articles/system/338610.html">freebuf</a></strong></p>
@@ -201,12 +507,12 @@
 <p>屏幕截图功能</p>
 <p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/yETTA2Hj33Qej4V4pjrYuC296il4UoxA/92.jpg"></p>
 <p>这里我使用了golang编写了解密脚本，除了session_key这个数据单单使用了Base64编码，其他的4个字段的数据都可以使用这个脚本解密，auth_post和data_post使用了3层加密，第一层的数据使用了RSA-2048进行加密，第二层req使用了硬编码的AesCBC密钥加密，第三层8563使用了随机生成的AesCBC加密，所以我们最多可以解密两层</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;crypto/aes&quot;</span></span><br><span class="line">	<span class="string">&quot;crypto/cipher&quot;</span></span><br><span class="line">	<span class="string">&quot;encoding/base64&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// addr_post字段加密数据</span></span><br><span class="line">	allcryptDataBase64 := <span class="string">&quot;EcgOPkkOHFylaFoLaqoXmbKPGOzvddbJMlnTtEtlScAdeewEFwzdITJsRYdYEushByrcQJCtuqdlGSeQyCjNieJBeQSnVwNcDhtQrh06LdGa3uyRHexahEL05goQ==&quot;</span></span><br><span class="line">	<span class="comment">// 加密数据前70个字节为垃圾数据，垃圾数据后的32个字节为AesCBC加密密钥</span></span><br><span class="line">	aesCBCKey := allcryptDataBase64[<span class="number">70</span> : <span class="number">70</span>+<span class="number">32</span>]</span><br><span class="line">	<span class="comment">// 需要解密的数据为70垃圾字节+32字节的AesCBC密钥后面的Base64编码数据</span></span><br><span class="line">	cryptDataBase64 := allcryptDataBase64[<span class="number">70</span>+<span class="number">32</span>:]</span><br><span class="line">	<span class="comment">// 将加密数据进行Base64解码</span></span><br><span class="line">	cryptData, _ := base64.StdEncoding.DecodeString(<span class="type">string</span>(cryptDataBase64))</span><br><span class="line">	<span class="comment">// 使用AesCBC解密数据</span></span><br><span class="line">	decryptData := AesDecryptCBC(cryptData, []<span class="type">byte</span>(aesCBCKey))</span><br><span class="line">	<span class="comment">// 打印解密数据</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%x\n&quot;</span>, decryptData)</span><br><span class="line">	<span class="comment">// 解密第二层数据：解密auth_post和data_post数据时再调用</span></span><br><span class="line">	DecryptoSecData(decryptData)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DecryptoSecData</span><span class="params">(decryptData []<span class="type">byte</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 解密第二层加密</span></span><br><span class="line">	<span class="comment">// 硬编码AesCBCKey</span></span><br><span class="line">	gaesCBCKeyBase64 := <span class="string">&quot;F+h/WB8d+NYSnWX9UM6z3WxOHCIwd819TFldpsPfkrI=&quot;</span></span><br><span class="line">	<span class="comment">// 解码第二层硬编码的AesCBC密钥</span></span><br><span class="line">	gaesCBCKey, _ := base64.StdEncoding.DecodeString(<span class="type">string</span>(gaesCBCKeyBase64))</span><br><span class="line">	<span class="comment">// 第二层要解密的数据</span></span><br><span class="line">	secCryptData := decryptData[<span class="number">8</span>:]</span><br><span class="line">	<span class="comment">// 使用AesCBC解密数据</span></span><br><span class="line">	secDecryptData := AesDecryptCBC(secCryptData, []<span class="type">byte</span>(gaesCBCKey))</span><br><span class="line">	fmt.Println(<span class="string">&quot;第二层数据解密--------------------------------------&quot;</span>)</span><br><span class="line">	<span class="comment">// 打印解密数据</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%x&quot;</span>, secDecryptData)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AesCBC模式解密函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">AesDecryptCBC</span><span class="params">(encrypted []<span class="type">byte</span>, key []<span class="type">byte</span>)</span></span> (decrypted []<span class="type">byte</span>) &#123;</span><br><span class="line">	<span class="comment">// 分组密钥</span></span><br><span class="line">	block, _ := aes.NewCipher(key)</span><br><span class="line">	<span class="comment">// 获取密钥块的长度</span></span><br><span class="line">	blockSize := block.BlockSize()</span><br><span class="line">	<span class="comment">// 加密模式</span></span><br><span class="line">	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])</span><br><span class="line">	<span class="comment">// 创建数组</span></span><br><span class="line">	decrypted = <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="built_in">len</span>(encrypted))</span><br><span class="line">	<span class="comment">// 解密</span></span><br><span class="line">	blockMode.CryptBlocks(decrypted, encrypted)</span><br><span class="line">	<span class="comment">// 去除补全码</span></span><br><span class="line">	decrypted = PKCS5UnPadding(decrypted)</span><br><span class="line">	<span class="keyword">return</span> decrypted</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 去除补全码</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PKCS5UnPadding</span><span class="params">(origData []<span class="type">byte</span>)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">	length := <span class="built_in">len</span>(origData)</span><br><span class="line">	unpadding := <span class="type">int</span>(origData[length<span class="number">-1</span>])</span><br><span class="line">	<span class="keyword">return</span> origData[:(length - unpadding)]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;crypto/aes&quot;</span></span><br><span class="line">    <span class="string">&quot;crypto/cipher&quot;</span></span><br><span class="line">    <span class="string">&quot;encoding/base64&quot;</span></span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// addr_post字段加密数据</span></span><br><span class="line">    allcryptDataBase64 := <span class="string">&quot;EcgOPkkOHFylaFoLaqoXmbKPGOzvddbJMlnTtEtlScAdeewEFwzdITJsRYdYEushByrcQJCtuqdlGSeQyCjNieJBeQSnVwNcDhtQrh06LdGa3uyRHexahEL05goQ==&quot;</span></span><br><span class="line">    <span class="comment">// 加密数据前70个字节为垃圾数据，垃圾数据后的32个字节为AesCBC加密密钥</span></span><br><span class="line">    aesCBCKey := allcryptDataBase64[<span class="number">70</span> : <span class="number">70</span>+<span class="number">32</span>]</span><br><span class="line">    <span class="comment">// 需要解密的数据为70垃圾字节+32字节的AesCBC密钥后面的Base64编码数据</span></span><br><span class="line">    cryptDataBase64 := allcryptDataBase64[<span class="number">70</span>+<span class="number">32</span>:]</span><br><span class="line">    <span class="comment">// 将加密数据进行Base64解码</span></span><br><span class="line">    cryptData, _ := base64.StdEncoding.DecodeString(<span class="type">string</span>(cryptDataBase64))</span><br><span class="line">    <span class="comment">// 使用AesCBC解密数据</span></span><br><span class="line">    decryptData := AesDecryptCBC(cryptData, []<span class="type">byte</span>(aesCBCKey))</span><br><span class="line">    <span class="comment">// 打印解密数据</span></span><br><span class="line">    fmt.Printf(<span class="string">&quot;%x\n&quot;</span>, decryptData)</span><br><span class="line">    <span class="comment">// 解密第二层数据：解密auth_post和data_post数据时再调用</span></span><br><span class="line">    DecryptoSecData(decryptData)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DecryptoSecData</span><span class="params">(decryptData []<span class="type">byte</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 解密第二层加密</span></span><br><span class="line">    <span class="comment">// 硬编码AesCBCKey</span></span><br><span class="line">    gaesCBCKeyBase64 := <span class="string">&quot;F+h/WB8d+NYSnWX9UM6z3WxOHCIwd819TFldpsPfkrI=&quot;</span></span><br><span class="line">    <span class="comment">// 解码第二层硬编码的AesCBC密钥</span></span><br><span class="line">    gaesCBCKey, _ := base64.StdEncoding.DecodeString(<span class="type">string</span>(gaesCBCKeyBase64))</span><br><span class="line">    <span class="comment">// 第二层要解密的数据</span></span><br><span class="line">    secCryptData := decryptData[<span class="number">8</span>:]</span><br><span class="line">    <span class="comment">// 使用AesCBC解密数据</span></span><br><span class="line">    secDecryptData := AesDecryptCBC(secCryptData, []<span class="type">byte</span>(gaesCBCKey))</span><br><span class="line">    fmt.Println(<span class="string">&quot;第二层数据解密--------------------------------------&quot;</span>)</span><br><span class="line">    <span class="comment">// 打印解密数据</span></span><br><span class="line">    fmt.Printf(<span class="string">&quot;%x&quot;</span>, secDecryptData)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AesCBC模式解密函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">AesDecryptCBC</span><span class="params">(encrypted []<span class="type">byte</span>, key []<span class="type">byte</span>)</span></span> (decrypted []<span class="type">byte</span>) &#123;</span><br><span class="line">    <span class="comment">// 分组密钥</span></span><br><span class="line">    block, _ := aes.NewCipher(key)</span><br><span class="line">    <span class="comment">// 获取密钥块的长度</span></span><br><span class="line">    blockSize := block.BlockSize()</span><br><span class="line">    <span class="comment">// 加密模式</span></span><br><span class="line">    blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])</span><br><span class="line">    <span class="comment">// 创建数组</span></span><br><span class="line">    decrypted = <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="built_in">len</span>(encrypted))</span><br><span class="line">    <span class="comment">// 解密</span></span><br><span class="line">    blockMode.CryptBlocks(decrypted, encrypted)</span><br><span class="line">    <span class="comment">// 去除补全码</span></span><br><span class="line">    decrypted = PKCS5UnPadding(decrypted)</span><br><span class="line">    <span class="keyword">return</span> decrypted</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 去除补全码</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PKCS5UnPadding</span><span class="params">(origData []<span class="type">byte</span>)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">    length := <span class="built_in">len</span>(origData)</span><br><span class="line">    unpadding := <span class="type">int</span>(origData[length<span class="number">-1</span>])</span><br><span class="line">    <span class="keyword">return</span> origData[:(length - unpadding)]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>NerbianRAT使用了现在主要的恶意软件传播方式之一为通过邮件附件的带VBA宏脚本的word文档进行传播，甚至不乏很多境外APT组织也使用此方式针对性攻击，go这种跨平台的编译型编程语言正被越来越多的恶意软件开发者采用，go众多的开源包可以实现快速开发，NerbianRAT使用了众多的反逆向和反虚拟机功能加大了分析的时间和难度，并且使用了RSA和AES组合的加密手段用来传输数据，对于此类传播方式的恶意软件能做的只有加强邮件地址过滤和附件检测和加大信息安全教育普及。</p>
 <hr />]]></content>
       <categories>
-        <category>病毒分析</category>
+        <category>样本分析</category>
       </categories>
       <tags>
         <tag>NerbianRat</tag>
