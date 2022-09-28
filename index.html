@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
@@ -15,10 +15,10 @@
 
 
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"yauv.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.12.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yauv.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
     <meta property="og:type" content="website">
 <meta property="og:title" content="yauv&#39;s blog">
@@ -38,6 +38,7 @@
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>yauv's blog</title>
   
+
 
 
 
@@ -74,6 +75,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -82,11 +84,37 @@
 
 <nav class="site-nav">
   <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
         
@@ -124,7 +152,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -135,7 +163,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -165,6 +193,7 @@
     <i class="fa fa-arrow-up"></i>
     <span>0%</span>
   </div>
+  <div class="reading-progress-bar"></div>
 
 <noscript>
   <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
@@ -181,7 +210,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://yauv.me/BruteRatelC4RedTeamToolsAnalysis.html">
+    <link itemprop="mainEntityOfPage" href="https://yauv.me/raccoon-stealer-v2-analysis-report.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -199,7 +228,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/BruteRatelC4RedTeamToolsAnalysis.html" class="post-title-link" itemprop="url">Brute Ratel C4分析</a>
+          <a href="/raccoon-stealer-v2-analysis-report.html" class="post-title-link" itemprop="url">一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告</a>
         </h2>
 
         <div class="post-meta-container">
@@ -209,9 +238,8 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2022-08-16 22:10:43 / 修改时间：14:17:40" itemprop="dateCreated datePublished" datetime="2022-08-16T22:10:43+08:00">2022-08-16</time>
+      <time title="创建时间：2022-09-16 22:57:08" itemprop="dateCreated datePublished" datetime="2022-09-16T22:57:08+08:00">2022-09-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -233,11 +261,12 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p><strong>本篇文章为本人原创，首发与<a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/341336.html">freebuf</a></strong></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Brute Ratel C4是类似于Cobalt Strike的商业红队框架，每年的License收费为$2500，首个版本Brute Ratel C4 v0.2 (Prometheus)于2021年2月9日发布，截至发稿最新发布版本v1.1(Stoffel’s Escape)与2022年7月20日发布，相比与Cobalt Strike的知名度BRc4显然要低调的多，但是BRc4使用的技术和功能却丝毫不亚于CS，本次分析的样本使用的最终payload就是BRc4</p>
+          <p><strong>本篇文章为本人原创，首发于<a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/344639.html">freebuf</a></strong></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Raccoon Stealer v2是一款在地下黑客论坛售卖的信息窃取器，通过恶意软件即服务 (MaaS)模式运营，用户购买订阅后可轻松进行配置并进行分发传播，一般通过伪装的破解软件下载站进行传播</p>
+<h1 id="样本运行流程"><a href="#样本运行流程" class="headerlink" title="样本运行流程"></a>样本运行流程</h1><p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/b8RG3rpDM0IFt0QI21byF9A4CHl0oBrF/2022091601.jpg"></p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/BruteRatelC4RedTeamToolsAnalysis.html#more" rel="contents">
+              <a class="btn" href="/raccoon-stealer-v2-analysis-report.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -268,7 +297,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://yauv.me/NerbianRatSampleAnalysisReport.html">
+    <link itemprop="mainEntityOfPage" href="https://yauv.me/brute-ratel-c4-redteam-tools-analysis.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -286,7 +315,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/NerbianRatSampleAnalysisReport.html" class="post-title-link" itemprop="url">NerbianRat样本分析报告</a>
+          <a href="/brute-ratel-c4-redteam-tools-analysis.html" class="post-title-link" itemprop="url">Brute Ratel C4红队框架和EDR的猫鼠游戏</a>
         </h2>
 
         <div class="post-meta-container">
@@ -297,14 +326,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-07-14 13:42:01" itemprop="dateCreated datePublished" datetime="2022-07-14T13:42:01+08:00">2022-07-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-08-16 14:07:37" itemprop="dateModified" datetime="2022-08-16T14:07:37+08:00">2022-08-16</time>
+      <time title="创建时间：2022-08-16 22:10:43" itemprop="dateCreated datePublished" datetime="2022-08-16T22:10:43+08:00">2022-08-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -326,11 +348,97 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p><strong>本篇文章为本人原创，首发与<a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/338610.html">freebuf</a></strong></p>
+          <p><strong>本篇文章为本人原创，首发于<a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/341336.html">freebuf</a></strong></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Brute Ratel C4是类似于Cobalt Strike的商业红队框架，每年的License收费为$2500，首个版本Brute Ratel C4 v0.2 (Prometheus)于2021年2月9日发布，截至发稿最新发布版本v1.1(Stoffel’s Escape)与2022年7月20日发布，相比与Cobalt Strike的知名度BRc4显然要低调的多，但是BRc4使用的技术和功能却丝毫不亚于CS，本次分析的样本使用的最终payload就是BRc4</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/brute-ratel-c4-redteam-tools-analysis.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://yauv.me/nerbian-rat-sample-analysis-report.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yauv">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yauv's blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | yauv's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/nerbian-rat-sample-analysis-report.html" class="post-title-link" itemprop="url">NerbianRat样本分析报告</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-07-14 13:42:01" itemprop="dateCreated datePublished" datetime="2022-07-14T13:42:01+08:00">2022-07-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">样本分析</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p><strong>本篇文章为本人原创，首发于<a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/338610.html">freebuf</a></strong></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Proofpoint的安全研究员发现并分析了这个新型恶意软件并命名为NerbianRAT，此恶意软件使用了反分析和反逆向功能，该恶意软件是使用Golang编写的64位程序，主要传播方式为冒充世界卫生组织发送的COVID-19相关的安全措施邮件，通过邮件附件中有VBA宏的Word文档传播。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/NerbianRatSampleAnalysisReport.html#more" rel="contents">
+              <a class="btn" href="/nerbian-rat-sample-analysis-report.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -380,6 +488,8 @@
 <script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
 
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.0/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
 
 
 

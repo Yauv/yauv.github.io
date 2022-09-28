@@ -6,7 +6,7 @@
   <link href="https://yauv.me/atom.xml" rel="self"/>
   
   <link href="https://yauv.me/"/>
-  <updated>2022-08-16T06:17:40.962Z</updated>
+  <updated>2022-09-28T07:18:31.012Z</updated>
   <id>https://yauv.me/</id>
   
   <author>
@@ -17,14 +17,37 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Brute Ratel C4分析</title>
-    <link href="https://yauv.me/BruteRatelC4RedTeamToolsAnalysis.html"/>
-    <id>https://yauv.me/BruteRatelC4RedTeamToolsAnalysis.html</id>
+    <title>一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告</title>
+    <link href="https://yauv.me/raccoon-stealer-v2-analysis-report.html"/>
+    <id>https://yauv.me/raccoon-stealer-v2-analysis-report.html</id>
+    <published>2022-09-16T14:57:08.000Z</published>
+    <updated>2022-09-28T07:18:31.012Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发于&lt;a href=&quot;https://www.freebuf.com/articles/system/344639.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;Raccoon Stealer v2是一款在地下黑客论坛售卖的信息窃取器，通过恶意软件即服务 (MaaS)模式运营，用户购买订阅后可轻松进行配置并进行分发传播，一般通过伪装的破解软件下载站进行传播&lt;/p&gt;
+&lt;h1 id=&quot;样本运行流程&quot;&gt;&lt;a href=&quot;#样本运行流程&quot; class=&quot;headerlink&quot; title=&quot;样本运行流程&quot;&gt;&lt;/a&gt;样本运行流程&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/b8RG3rpDM0IFt0QI21byF9A4CHl0oBrF/2022091601.jpg&quot;&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="样本分析" scheme="https://yauv.me/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="Raccoon Stealer v2" scheme="https://yauv.me/tags/Raccoon-Stealer-v2/"/>
+    
+    <category term="窃密的浣熊" scheme="https://yauv.me/tags/%E7%AA%83%E5%AF%86%E7%9A%84%E6%B5%A3%E7%86%8A/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Brute Ratel C4红队框架和EDR的猫鼠游戏</title>
+    <link href="https://yauv.me/brute-ratel-c4-redteam-tools-analysis.html"/>
+    <id>https://yauv.me/brute-ratel-c4-redteam-tools-analysis.html</id>
     <published>2022-08-16T14:10:43.000Z</published>
-    <updated>2022-08-16T06:17:40.962Z</updated>
+    <updated>2022-09-28T07:18:13.532Z</updated>
     
     
-    <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发与&lt;a href=&quot;https://www.freebuf.com/articles/system/341336.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+    <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发于&lt;a href=&quot;https://www.freebuf.com/articles/system/341336.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
 &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;Brute Ratel C4是类似于Cobalt Strike的商业红队框架，每年的License收费为$2500，首个版本Brute Ratel C4 v0.2 (Prometheus)于2021年2月9日发布，截至发稿最新发布版本v1.1(Stoffel’s Escape)与2022年7月20日发布，相比与Cobalt Strike的知名度BRc4显然要低调的多，但是BRc4使用的技术和功能却丝毫不亚于CS，本次分析的样本使用的最终payload就是BRc4&lt;/p&gt;</summary>
     
     
@@ -46,13 +69,13 @@
   
   <entry>
     <title>NerbianRat样本分析报告</title>
-    <link href="https://yauv.me/NerbianRatSampleAnalysisReport.html"/>
-    <id>https://yauv.me/NerbianRatSampleAnalysisReport.html</id>
+    <link href="https://yauv.me/nerbian-rat-sample-analysis-report.html"/>
+    <id>https://yauv.me/nerbian-rat-sample-analysis-report.html</id>
     <published>2022-07-14T05:42:01.000Z</published>
-    <updated>2022-08-16T06:07:37.817Z</updated>
+    <updated>2022-09-28T07:39:21.966Z</updated>
     
     
-    <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发与&lt;a href=&quot;https://www.freebuf.com/articles/system/338610.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+    <summary type="html">&lt;p&gt;&lt;strong&gt;本篇文章为本人原创，首发于&lt;a href=&quot;https://www.freebuf.com/articles/system/338610.html&quot;&gt;freebuf&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
 &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;Proofpoint的安全研究员发现并分析了这个新型恶意软件并命名为NerbianRAT，此恶意软件使用了反分析和反逆向功能，该恶意软件是使用Golang编写的64位程序，主要传播方式为冒充世界卫生组织发送的COVID-19相关的安全措施邮件，通过邮件附件中有VBA宏的Word文档传播。&lt;/p&gt;</summary>
     
     

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yauv.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本篇文章为本人原创，首发于freebuf 前言Raccoon Stealer v2是一款在地下黑客论坛售卖的信息窃取器，通过恶意软件即服务 (MaaS)模式运营，用户购买订阅后可轻松进行配置并进行分发传播，一般通过伪装的破解软件下载站进行传播 样本运行流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告">
+<meta property="og:url" content="https://yauv.me/raccoon-stealer-v2-analysis-report.html">
+<meta property="og:site_name" content="yauv&#39;s blog">
+<meta property="og:description" content="本篇文章为本人原创，首发于freebuf 前言Raccoon Stealer v2是一款在地下黑客论坛售卖的信息窃取器，通过恶意软件即服务 (MaaS)模式运营，用户购买订阅后可轻松进行配置并进行分发传播，一般通过伪装的破解软件下载站进行传播 样本运行流程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/b8RG3rpDM0IFt0QI21byF9A4CHl0oBrF/2022091601.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/IhPY3bVoLIzJ1CTybpmQGhjRRwda6pVG/2022091602.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/p1PSBjxm8pjcubYr5eHRGQAaGkROpysj/2022091603.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/KstHQ8vqG6OkIVjd2Fb0vCFWMbk5QK45/2022091604.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/64xoXQoQtTbWQJ8xThdhhlfFMVjNraXP/2022091605.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/JayzuBPF2SNQYaLheH78D9dv91w07jEq/2022091606.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/J7xfs84zBD1cyhqTUrusr3Tg7jQlhAkd/2022091607.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/m8Re9v6nKYJ83254dBNpTxEmJtiB4g9i/2022091608.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vmRIAMiub38EcB29kHFGeRP0cRcdguOM/2022091609.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/XtB49kJkDRXlojxhuBL2tjPk1L7FSblc/2022091610.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/9uUAR3UIDqzkamij25B0frjouL2TiMjl/2022091611.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vjF9W2PmjyRVW2QzpoPkDeLC1i2lkODh/2022091612.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WlETPC9BjnVzqgRCiFNqgE6xftqvuJxO/2022091613.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/IgRjuwSLIQ8a0PTApzjs3morCB9ikvFG/2022091614.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/TLfCnHAN5APNVloRpCMWEh2HepeLhPC1/2022091615.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/yYXqPTP4VTg47oFW3F7CNIuSMviSumK2/2022091616.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/NsAz8povfgugw1fcg8ETCyy8fc18Lv8z/2022091617.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/v8iLID7NaHe2g0URpoe16LSTz4duI1CN/2022091618.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Pu5I5u4cnVeRhU7YVfsCkOAUmKgOrTjd/2022091619.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/AooBTqcJWWjsUlt7o2FPxDplEFdWnu5B/2022091620.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/pgO6zwfKvezbLtC4sAr02JNQUdaoJWzr/2022091621.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VEg8BrYlMIfr9d2kNunLfD6CHukM54my/2022091622.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/tn9rC1mXUlap4h96993OvQWQbz3kBYu9/2022091623.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/9VLOk8xImfLtFt3XX5Jl5WYkkepGheE9/2022091624.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WnmXhTU6KITyiKqkeEAnlgqOrc3sNB8f/2022091625.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/OmcP5MOwSpsDD4aLUoBefQcxJdx1y96z/2022091626.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/dGGAvTMRXqMic9YIVk0EhKFVjWlitAuY/2022091627.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/QxR3LeL9M7v52K51mI1FUFzf8o3Nmzz9/2022091628.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/ruOCCbJtRcuhr8bfAGQXzn7SpVANIJ8e/2022091629.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/nsN2unkJOvwwlaM6zIfkeFy5vGlbeTkT/2022091630.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fX7sBeV5O9E0yC8O4isx5XaUWX5QnwT6/2022091631.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/nhxvYrWGES4KNFR1VEbtcCaHjgTAs26e/2022091632.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VGVGKJvynx5WejuCSWr75MhvwEN3R25u/2022091633.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/6aoBbx3E1jfQm4Pt2K2DMFQ4zKObE5UO/2022091634.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/NHQsfCmUHEQbiFwCABPulxIP2Fetf4M4/2022091635.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/UCEWQIzqQyDBrFPFvwBqeHXmvpzrEpW9/2022091636.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YP41vRi58m1cRG5BVGFmsFmch1yVB6RD/2022091637.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/gortGUPz6vHNeXESXszb1jWO22yxHiND/2022091638.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/XRLeoXnFo8pouV0heqOUgpT4QcSbhkHk/2022091639.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Ymim9WCqoAFgYonWa6yBP4R554YowIEJ/2022091640.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/wiwVY8dhYnP8DNY5TRflmFOigfjBMg3u/2022091641.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/j79JxTkdfnqmgzyaVqAHMENyA9VvqcIX/2022091642.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Xbw2ijOxmg12Uc01Aq7lIg4iR9KLqK3W/2022091643.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/lVJlGQCvF7rMRn6TLJdTaoa6LoTYaSFj/2022091644.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/s9EQsST8GkVhxjhb6s90fMowLsualdwI/2022091645.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vjN1ufdiYdBL4cngGabEqTN6KJCcEkFU/2022091646.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/PcpalMVVavjqvKKwn2MuGfQCDsn7UczX/2022091647.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/IxSueMz19SD9Dixo4LMy6wljW7afz6Ts/2022091648.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/sKtVQe1BcUP4lqIBeIxpVETOJlONFEfw/2022091649.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/y601UkfIn1IxhsHCTWXvdgrnrGFASOCD/2022091650.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Nh7NgqwfL6UX9lQA0cp1hHTrFWAtDKRL/2022091651.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fnLj1BROypakKRIhUsS9Ww5hknC3TyGv/2022091652.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/y8LLFxLcmxW2HYpY0m4EzEdxLo5hJMwY/2022091653.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WPef5BICDlWath3Cihe73QdUd2yAfHDD/2022091654.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/0G9In0EiBOIBPVVEDyjidoYAVD6ndK1k/2022091655.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/028UAh6QW7mn5ooAUmvoa4mjr3imex98/2022091656.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/QopkwqT8QWqLVL9Kkg1HsloHiEBPomnt/2022091657.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/HRhRQeXqkSdr5eSVs23cxEi1htHCAn4w/2022091658.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/0r96hoci8Q9vctmoQUV7fCkCvjpluTSk/2022091659.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/W1PjT7eCGCP3B3qAUDiLlA1bwtcrB7l2/2022091660.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fWjGklYGszcGKP8sQtfSYc9iq2RMjisX/2022091661.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/qQAOTLk2F6KrAHDwwAV2KaBre9G3lYpA/2022091662.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vjwF0sWVr6WC7Ud40BD2uP70gReGrK8K/2022091663.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/FfwBpickIuFWdYJ0G7s4WxoaQKFFy2W7/2022091664.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Brn9dKlng8CNK6WYYWpFjRzHbHjyFlbN/2022091665.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/KHwge7t3y4IvPKHwg9flqC62y8NqoE27/2022091666.jpg">
+<meta property="og:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YsSxQv9XguVXIVzUsub4J1KwYe4wxMwB/2022091667.jpg">
+<meta property="article:published_time" content="2022-09-16T14:57:08.000Z">
+<meta property="article:modified_time" content="2022-09-28T07:18:31.012Z">
+<meta property="article:author" content="yauv">
+<meta property="article:tag" content="Raccoon Stealer v2">
+<meta property="article:tag" content="窃密的浣熊">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/b8RG3rpDM0IFt0QI21byF9A4CHl0oBrF/2022091601.jpg">
+
+
+<link rel="canonical" href="https://yauv.me/raccoon-stealer-v2-analysis-report.html">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://yauv.me/raccoon-stealer-v2-analysis-report.html","path":"raccoon-stealer-v2-analysis-report.html","title":"一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告 | yauv's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="yauv's blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">yauv's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B7%E6%9C%AC%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">样本运行流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B7%E6%9C%ACIOCs"><span class="nav-number">3.</span> <span class="nav-text">样本IOCs</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hash"><span class="nav-number">3.1.</span> <span class="nav-text">hash</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#url"><span class="nav-number">3.2.</span> <span class="nav-text">url</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%81%B6%E6%84%8F%E4%B8%8B%E8%BD%BD%E7%AB%99"><span class="nav-number">3.2.1.</span> <span class="nav-text">恶意下载站</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1URL"><span class="nav-number">3.2.2.</span> <span class="nav-text">通信URL</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">恶意代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E6%92%AD%E9%80%94%E5%BE%84"><span class="nav-number">4.1.</span> <span class="nav-text">传播途径</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90"><span class="nav-number">4.2.</span> <span class="nav-text">流量分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">4.3.</span> <span class="nav-text">代码分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yauv</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yauv" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yauv" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yauv.me/raccoon-stealer-v2-analysis-report.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yauv">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yauv's blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告 | yauv's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-09-16 22:57:08" itemprop="dateCreated datePublished" datetime="2022-09-16T22:57:08+08:00">2022-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">样本分析</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><strong>本篇文章为本人原创，首发于<a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/344639.html">freebuf</a></strong></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Raccoon Stealer v2是一款在地下黑客论坛售卖的信息窃取器，通过恶意软件即服务 (MaaS)模式运营，用户购买订阅后可轻松进行配置并进行分发传播，一般通过伪装的破解软件下载站进行传播</p>
+<h1 id="样本运行流程"><a href="#样本运行流程" class="headerlink" title="样本运行流程"></a>样本运行流程</h1><p><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/b8RG3rpDM0IFt0QI21byF9A4CHl0oBrF/2022091601.jpg"></p>
+<span id="more"></span>
+
+<h1 id="样本IOCs"><a href="#样本IOCs" class="headerlink" title="样本IOCs"></a>样本IOCs</h1><h2 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h2><p>名称: PA$$w0rds_1234__SetupMain7–A4.rar<br>大小: 6350190 字节 (6201 KiB)<br>MD5: 916062da2e31a30e6f1ec0edc33dd4e9<br>SHA1: b34300a38b0329ec9b3d303ddf670a3b6d154d6b<br>SHA256: 1ce1ef40bf1a6edc429a326be3bccb9385d0dd4ccfb00c07972f64d232066b8a</p>
+<p>名称: Setup.exe<br>大小: 761512960 字节 (726 MiB)<br>MD5: 7949b59a91d6c4b6bc005c7222d00829e<br>SHA1: 8aa525197f8ad4f0a2c5f0a549ed5ff9334d331b<br>SHA256: 3821c8468ab7f53a5aa536f3da3d1d2ef553c0b9f60682f339791886c8096b50</p>
+<p>名称: Setup.exe（去除无用字节）<br>大小: 6538240 字节 (6385 KiB)<br>MD5: 657b3c0142ba7bea31c0618d38cb8a04<br>SHA1: 73ee1fe9a79c48460fb5fa9d10a09338b9e48669<br>SHA256: 7ff22cd1d3e1c8d7bf2628da60c905bd6bef4733b0d4e68e862e1598268d2481</p>
+<p>名称: 36141266339446703039.bin<br>大小: 2834432 字节 (2768 KiB)<br>MD5: 24967c5d930081488e15e735d3d40d0c<br>SHA1: 080e2d4f2065d326d8842e4ca9a02ed76e74f4d5<br>SHA256: 1324ad52820961a29ef6aea13e5bb21d1bbd2169045abc61c711424f196d11f2</p>
+<p>名称: RaccoonStealerV2<br>大小: 56832 字节 (55 KiB)<br>MD5: 0cfa58846e43dd67b6d9f29e97f6c53e<br>SHA1: 19d9fbfd9b23d4bd435746a524443f1a962d42fa<br>SHA256: 022432f770bf0e7c5260100fcde2ec7c49f68716751fd7d8b9e113bf06167e03</p>
+<h2 id="url"><a href="#url" class="headerlink" title="url"></a>url</h2><h3 id="恶意下载站"><a href="#恶意下载站" class="headerlink" title="恶意下载站"></a>恶意下载站</h3><p>hxxps:&#x2F;&#x2F;licenseprokeys[.]com&#x2F;<br>hxxps:&#x2F;&#x2F;tradecracked[.]com&#x2F;<br>hxxps:&#x2F;&#x2F;fancracked[.]com&#x2F;</p>
+<h3 id="通信URL"><a href="#通信URL" class="headerlink" title="通信URL"></a>通信URL</h3><p>http[:]&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK&#x2F;nss3[.]dll<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK&#x2F;msvcp140[.]dll<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK&#x2F;vcruntime140[.]dll<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK&#x2F;mozglue[.]dll<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK&#x2F;freebl3[.]dll<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK&#x2F;softokn3[.]dll<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK&#x2F;sqlite3[.]dll<br>hxxp:&#x2F;&#x2F;94[.]131[.]106[.]116&#x2F;3f9bef70525fd0873fc9acf8b6babce9<br>hxxp:&#x2F;&#x2F;172[.]86[.]75[.]189&#x2F;&#x2F;36141266339446703039[.]bin</p>
+<h1 id="恶意代码分析"><a href="#恶意代码分析" class="headerlink" title="恶意代码分析"></a>恶意代码分析</h1><h2 id="传播途径"><a href="#传播途径" class="headerlink" title="传播途径"></a>传播途径</h2><p>某天闲逛的时候搜索了一些关键词xxxx crack（搜索结果中基本都是用于传播恶意软件的网站）<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/IhPY3bVoLIzJ1CTybpmQGhjRRwda6pVG/2022091602.jpg"><br>随手点进了第一个网站后<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/p1PSBjxm8pjcubYr5eHRGQAaGkROpysj/2022091603.jpg"><br>下载链接点击下载链接下载<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/KstHQ8vqG6OkIVjd2Fb0vCFWMbk5QK45/2022091604.jpg"><br>下载链接的跳转过程一共跳转了7次</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0-&gt;hxxps://href[.]li/?hxxps://wqervf56kl[.]click/?i=PeStudio-Pro-9-43-Crack---License-Key-Free-Download-2022&amp;u=1663076111&amp;t=16</span><br><span class="line">1-&gt;hxxps://wqervf56kl[.]click/?i=PeStudio-Pro-9-43-Crack---License-Key-Free-Download-2022&amp;u=1663076111&amp;t=16</span><br><span class="line">2-&gt;hxxps://href[.]li/?hxxps://nhgfr7yh[.]click/Mt1JWxKprFcGNv67jDX0TqmUlgEL9s5/16/PeStudio-Pro-9-43-Crack---License-Key-Free-Download-2022</span><br><span class="line">3-&gt;hxxps://nhgfr7yh[.]click/Mt1JWxKprFcGNv67jDX0TqmUlgEL9s5/16/PeStudio-Pro-9-43-Crack---License-Key-Free-Download-2022</span><br><span class="line">4-&gt;hxxps://iplogger[.]org/Wersty-TM2poy-PASSw0rds_1234__SetupMain7--A4</span><br><span class="line">5-&gt;hxxps://www[.]mediafire[.]com/file/p99280jcivm6732/PA$$w0rds_1234__SetupMain7--A4.rar/file</span><br><span class="line">6-&gt;hxxps://download2338[.]mediafire[.]com/ixn681qdyafg/p99280jcivm6732/PA%24%24w0rds_1234__SetupMain7--A4.rar</span><br></pre></td></tr></table></figure>
+
+<p>其中查询可知href[.]li为一款的网站重定向小工具<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/64xoXQoQtTbWQJ8xThdhhlfFMVjNraXP/2022091605.jpg"><br>跳转到nhgfr7yh[.]click页面给出了一个链接让我们复制并下载<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/JayzuBPF2SNQYaLheH78D9dv91w07jEq/2022091606.jpg"><br>我们查看iplogger[.]org发现是一个短链接生成网站，并且此链接已经被拉入黑名单，但是下载链接还是可以正常下载<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/J7xfs84zBD1cyhqTUrusr3Tg7jQlhAkd/2022091607.jpg"><br>www[.]mediafire[.]com是一个文件存储和共享应用，并且无需注册就可以上传文件并分享<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/m8Re9v6nKYJ83254dBNpTxEmJtiB4g9i/2022091608.jpg"><br>我们查看下载的压缩包大小为6.05MB<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vmRIAMiub38EcB29kHFGeRP0cRcdguOM/2022091609.jpg"><br>我们使用密码1234解压后，发现Setup.exe竟然足足有726MB大小，并且这个图标和应用名和我下载的软件也货不对板<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/XtB49kJkDRXlojxhuBL2tjPk1L7FSblc/2022091610.jpg"><br>目前我认为还没有这么强大的压缩算法吧，那就只有一个原因这个PE文件肯定附加了很多重复的无意义字节，我们使用010Editor打开PE文件查看，果然PE文件尾部使用了大量的0x30填充，此技术主要是增大PE文件大小防止AV或EDR上传沙箱分析<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/9uUAR3UIDqzkamij25B0frjouL2TiMjl/2022091611.jpg"><br>我们去除PE尾部的0x30后PE文件缩小为6.23 MB，此PE文件是使用Visual Studio 2019链接器版本14.29（ 1929 (versions 16.10 + 16.11)）编译的32位PE文件，使用了VMProtect 3.6.0加壳<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vjF9W2PmjyRVW2QzpoPkDeLC1i2lkODh/2022091612.jpg"><br>代码都被VM了，直接上传样本到沙箱分析<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WlETPC9BjnVzqgRCiFNqgE6xftqvuJxO/2022091613.jpg"></p>
+<h2 id="流量分析"><a href="#流量分析" class="headerlink" title="流量分析"></a>流量分析</h2><p>上传沙箱分析后发现威胁情报标签显示此样本来自于Raccoon Stealer家族，查看样本产生的流量特征和公开的威胁情报对比可以确定此样本应该是Raccoon Stealer v2<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/IgRjuwSLIQ8a0PTApzjs3morCB9ikvFG/2022091614.jpg"><br>首先第一个POST请求中使用的User-Agent为<code>mozzzzzzzzzzz</code>，发送的数据为<code>machineId=90059c37-1320-41a4-b58d-2b75a9850d2f|admin&amp;configId=0dcbeb99ec1adc5c2b2b94dc1e3fd2c4</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/TLfCnHAN5APNVloRpCMWEh2HepeLhPC1/2022091615.jpg"><br>C2返回的数据中返回了明文配置文件，libs_开头的为要下载的dll，ews_开头的为浏览器扩展数据窃取配置，wlts_开头的为数字货币加密钱包数据窃取配置，xtntns_开头的为密码管理软件数据窃取配置，grbr_Desktop为要窃取的文件路径和文件类型，ldr_为下一阶段的payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">libs_nss3:hxxp://94[.]131[.]106[.]116/aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK/nss3.dll</span><br><span class="line">libs_msvcp140:hxxp://94[.]131[.]106[.]116/aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK/msvcp140.dll</span><br><span class="line">libs_vcruntime140:hxxp://94[.]131[.]106[.]116/aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK/vcruntime140.dll</span><br><span class="line">libs_mozglue:hxxp://94[.]131[.]106[.]116/aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK/mozglue.dll</span><br><span class="line">libs_freebl3:hxxp://94[.]131[.]106[.]116/aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK/freebl3.dll</span><br><span class="line">libs_softokn3:hxxp://94[.]131[.]106[.]116/aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK/softokn3.dll</span><br><span class="line">ews_meta_e:ejbalbakoplchlghecdalmeeeajnimhm;MetaMask;Local Extension Settings</span><br><span class="line">ews_tronl:ibnejdfjmmkpcnlpebklmnkoeoihofec;TronLink;Local Extension Settings</span><br><span class="line">libs_sqlite3:hxxp://94[.]131[.]106[.]116/aN7jD0qO6kT5bK5bQ4eR8fE1xP7hL2vK/sqlite3.dll</span><br><span class="line">ews_bsc:fhbohimaelbohpjbbldcngcnapndodjp;BinanceChain;Local Extension Settings</span><br><span class="line">ews_ronin:fnjhmkhhmkbjkkabndcnnogagogbneec;Ronin;Local Extension Settings</span><br><span class="line">wlts_exodus:Exodus;26;exodus;*;*partitio*,*cache*,*dictionar*</span><br><span class="line">wlts_atomic:Atomic;26;atomic;*;*cache*,*IndexedDB*</span><br><span class="line">wlts_jaxxl:JaxxLiberty;26;com.liberty.jaxx;*;*cache*</span><br><span class="line">wlts_binance:Binance;26;Binance;*app-store.*;-</span><br><span class="line">wlts_coinomi:Coinomi;28;Coinomi\Coinomi\wallets;*;-</span><br><span class="line">wlts_electrum:Electrum;26;Electrum\wallets;*;-</span><br><span class="line">wlts_elecltc:Electrum-LTC;26;Electrum-LTC\wallets;*;-</span><br><span class="line">wlts_elecbch:ElectronCash;26;ElectronCash\wallets;*;-</span><br><span class="line">wlts_guarda:Guarda;26;Guarda;*;*cache*,*IndexedDB*</span><br><span class="line">wlts_green:BlockstreamGreen;28;Blockstream\Green;*;cache,gdk,*logs*</span><br><span class="line">wlts_ledger:Ledger Live;26;Ledger Live;*;*cache*,*dictionar*,*sqlite*</span><br><span class="line">ews_ronin_e:kjmoohlgokccodicjjfebfomlbljgfhk;Ronin;Local Extension Settings</span><br><span class="line">ews_meta:nkbihfbeogaeaoehlefnkodbefgpgknn;MetaMask;Local Extension Settings</span><br><span class="line">sstmnfo_System Info.txt:System Information: </span><br><span class="line">|Installed applications:</span><br><span class="line">|</span><br><span class="line">wlts_daedalus:Daedalus;26;Daedalus Mainnet;*;log*,*cache,chain,dictionar*</span><br><span class="line">wlts_mymonero:MyMonero;26;MyMonero;*;*cache*</span><br><span class="line">wlts_xmr:Monero;5;Monero\\wallets;*.keys;-</span><br><span class="line">wlts_wasabi:Wasabi;26;WalletWasabi\\Client;*;*tor*,*log*</span><br><span class="line">ews_metax:mcohilncbfahbmgdjkbpemcciiolgcge;MetaX;Local Extension Settings</span><br><span class="line">ews_xdefi:hmeobnfnfcmdkdcmlblgagmfpfboieaf;XDEFI;IndexedDB</span><br><span class="line">ews_waveskeeper:lpilbniiabackdjcionkobglmddfbcjo;WavesKeeper;Local Extension Settings</span><br><span class="line">ews_solflare:bhhhlbepdkbapadjdnnojkbgioiodbic;Solflare;Local Extension Settings</span><br><span class="line">ews_rabby:acmacodkjbdgmoleebolmdjonilkdbch;Rabby;Local Extension Settings</span><br><span class="line">ews_cyano:dkdedlpgdmmkkfjabffeganieamfklkm;CyanoWallet;Local Extension Settings</span><br><span class="line">ews_coinbase:hnfanknocfeofbddgcijnmhnfnkdnaad;Coinbase;IndexedDB</span><br><span class="line">ews_auromina:cnmamaachppnkjgnildpdmkaakejnhae;AuroWallet;Local Extension Settings</span><br><span class="line">ews_khc:hcflpincpppdclinealmandijcmnkbgn;KHC;Local Extension Settings</span><br><span class="line">ews_tezbox:mnfifefkajgofkcjkemidiaecocnkjeh;TezBox;Local Extension Settings</span><br><span class="line">ews_coin98:aeachknmefphepccionboohckonoeemg;Coin98;Local Extension Settings</span><br><span class="line">ews_temple:ookjlbkiijinhpmnjffcofjonbfbgaoc;Temple;Local Extension Settings</span><br><span class="line">ews_iconex:flpiciilemghbmfalicajoolhkkenfel;ICONex;Local Extension Settings</span><br><span class="line">ews_sollet:fhmfendgdocmcbmfikdcogofphimnkno;Sollet;Local Extension Settings</span><br><span class="line">ews_clover:nhnkbkgjikgcigadomkphalanndcapjk;CloverWallet;Local Extension Settings</span><br><span class="line">ews_polymesh:jojhfeoedkpkglbfimdfabpdfjaoolaf;PolymeshWallet;Local Extension Settings</span><br><span class="line">ews_neoline:cphhlgmgameodnhkjdmkpanlelnlohao;NeoLine;Local Extension Settings</span><br><span class="line">ews_keplr:dmkamcknogkgcdfhhbddcghachkejeap;Keplr;Local Extension Settings</span><br><span class="line">ews_terra_e:ajkhoeiiokighlmdnlakpjfoobnjinie;TerraStation;Local Extension Settings</span><br><span class="line">ews_terra:aiifbnbfobpmeekipheeijimdpnlpgpp;TerraStation;Local Extension Settings</span><br><span class="line">ews_liquality:kpfopkelmapcoipemfendmdcghnegimn;Liquality;Local Extension Settings</span><br><span class="line">ews_saturn:nkddgncdjgjfcddamfgcmfnlhccnimig;SaturnWallet;Local Extension Settings</span><br><span class="line">ews_guild:nanjmdknhkinifnkgdcggcfnhdaammmj;GuildWallet;Local Extension Settings</span><br><span class="line">ews_phantom:bfnaelmomeimhlpmgjnjophhpkkoljpa;Phantom;Local Extension Settings</span><br><span class="line">ews_tronlink:ibnejdfjmmkpcnlpebklmnkoeoihofec;TronLink;Local Extension Settings</span><br><span class="line">ews_brave:odbfpeeihdkbihmopkbjmoonfanlbfcl;Brave;Local Extension Settings</span><br><span class="line">ews_meta_e:ejbalbakoplchlghecdalmeeeajnimhm;MetaMask;Local Extension Settings</span><br><span class="line">ews_ronin_e:kjmoohlgokccodicjjfebfomlbljgfhk;Ronin;Local Extension Settings</span><br><span class="line">ews_mewcx:nlbmnnijcnlegkjjpcfjclmcfggfefdm;MEW_CX;Sync Extension Settings</span><br><span class="line">ews_ton:cgeeodpfagjceefieflmdfphplkenlfk;TON;Local Extension Settings</span><br><span class="line">ews_goby:jnkelfanjkeadonecabehalmbgpfodjm;Goby;Local Extension Settings</span><br><span class="line">ews_ton_ex:nphplpgoakhhjchkkhmiggakijnkhfnd;TON;Local Extension Settings</span><br><span class="line">ews_Cosmostation:fpkhgmpbidmiogeglndfbkegfdlnajnf;Cosmostation;Local Extension Settings</span><br><span class="line">ews_bitkeep:jiidiaalihmmhddjgbnbgdfflelocpak;BitKeep;Local Extension Settings</span><br><span class="line">ews_stargazer:pgiaagfkgcbnmiiolekcfmljdagdhlcm;Stargazer;Local Extension Settings</span><br><span class="line">ews_clv:nhnkbkgjikgcigadomkphalanndcapjk;CloverWallet;Local Extension Settings</span><br><span class="line">ews_jaxxlibertyext:cjelfplplebdjjenllpjcblmjkfcffne;JaxxLibertyExtension;Local Extension Settings</span><br><span class="line">ews_enkrypt:kkpllkodjeloidieedojogacfhpaihoh;Enkrypt;Local Extension Settings</span><br><span class="line">ews_gamestop:pkkjjapmlcncipeecdmlhaipahfdphkd;GameStop Wallet;Local Extension Settings</span><br><span class="line">ews_xds:aholpfdialjgjfhomihkjbmgjidlcdno;Exodus Web3 Wallet;Local Extension Settings</span><br><span class="line">xtntns_authenticatorcc:bhghoamapcdpbohphigoooaddinpkbai;Authenticator.cc;Sync Extension Settings</span><br><span class="line">xtntns_keepassxc_browser:oboonakemofpalcgghocfoadofidjkkk;KeePassXC Browser;Local Extension Settings</span><br><span class="line">xtntns_keepassTusk:fmhmiaejopepamlcjkncpgpdjichnecm;KeePass Tusk;Local Extension Settings</span><br><span class="line">xtntns_bitwardenEx:nngceckbapebfimnlniiiahkandclblb;Bitwarden;Local Extension Settings</span><br><span class="line">xtntns_microsoftAfL:fiedbfgcleddlbcmgdigjgdfcggjcion;Microsoft Autofill Local;Local Extension Settings</span><br><span class="line">xtntns_microsoftAfS:fiedbfgcleddlbcmgdigjgdfcggjcion;Microsoft Autofill Sync;Sync Extension Settings</span><br><span class="line">grbr_Desktop:%USERPROFILE%\Desktop\|*.txt|*recycle*,*windows*|25|1|1|files</span><br><span class="line">grbr_Documets:%USERPROFILE%\Documents\|*.txt|*recycle*,*windows*|25|1|1|files</span><br><span class="line">ldr_1:hxxp://172[.]86[.]75[.]189/36141266339446703039[.]bin|%APPDATA%\|exe</span><br><span class="line">token:3f9bef70525fd0873fc9acf8b6babce9</span><br></pre></td></tr></table></figure>
+
+<p>从C2下载sqlite3.dll，流量中可以看到下载的PE文件<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/yYXqPTP4VTg47oFW3F7CNIuSMviSumK2/2022091616.jpg"><br>从c2获取的7个dll中，freebl3.dll,mozglue.dll,softokn3.dll,nss3.dll有Mozilla有效签名，msvcp140.dll,vcruntime140.dll有Microsoft有效签名，其中sqlite3.dll为MinGW编译无数字签名<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/NsAz8povfgugw1fcg8ETCyy8fc18Lv8z/2022091617.jpg"><br>3个连续的POST请求使用的User-Agent为<code>rqwrwqrqwrqw</code>，向C2发送了大量明文数据，我们可以看到其中第一个POST请求发送收集到的系统数据System Info.txt，主要内容为本机的操作系统版本和基本硬件信息还有本机安装的软件<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/v8iLID7NaHe2g0URpoe16LSTz4duI1CN/2022091618.jpg"><br>第二个POST请求可以看到发送的是cookies.txt和passwords.txt，收集到的数据是chrome浏览器登陆的账号密码数据和cookies<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Pu5I5u4cnVeRhU7YVfsCkOAUmKgOrTjd/2022091619.jpg"><br>第三个POST请求发送的是passwords.txt，主要就是本机Firefox浏览器保存的登陆网站对应的账号密码<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/AooBTqcJWWjsUlt7o2FPxDplEFdWnu5B/2022091620.jpg"><br>我们查看最后一个GET请求发现36141266339446703039.bin为一个PE文件<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/pgO6zwfKvezbLtC4sAr02JNQUdaoJWzr/2022091621.jpg"><br>我们使用DIE工具查看发现此PE文件为使用Visual Studio 2019编译的并使用ENIGMA5.x版本加壳的32位程序<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VEg8BrYlMIfr9d2kNunLfD6CHukM54my/2022091622.jpg"><br>通过沙箱分析36141266339446703039.bin有创建计划任务进行持久化的操作<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/tn9rC1mXUlap4h96993OvQWQbz3kBYu9/2022091623.jpg"><br>我们查看部分XMl文件内容，计划任务每隔5分钟会运行XML中的prevhost.exe，根据公开的威胁情报显示此程序功能为剪贴板劫持<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/9VLOk8xImfLtFt3XX5Jl5WYkkepGheE9/2022091624.jpg"><br>查询94[.]131[.]106[.]116的威胁情报发现有2个恶意样本使用了此IP进行通信<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WnmXhTU6KITyiKqkeEAnlgqOrc3sNB8f/2022091625.jpg"><br>查询172[.]86[.]75[.]189的威胁情报，发现了多个下载样本也是加了Enigma壳<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/OmcP5MOwSpsDD4aLUoBefQcxJdx1y96z/2022091626.jpg"></p>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>由于样本都是加了强壳对代码进行VM，于是这里我寻找到了未加壳的样本进行分析，可以看到编译的连接器版本也是14.29，而且此样本是使用纯汇编编写所以样本大小只有55.5KB<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/dGGAvTMRXqMic9YIVk0EhKFVjWlitAuY/2022091627.jpg"><br>首先分析第一个函数，主要通过LoadLibraryW和GetProcAddress函数组合动态获取函数地址<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/QxR3LeL9M7v52K51mI1FUFzf8o3Nmzz9/2022091628.jpg"><br>获取注册表和网络还有字符串加解密相关函数地址<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/ruOCCbJtRcuhr8bfAGQXzn7SpVANIJ8e/2022091629.jpg"><br>字符串使用了Base64编码加RC4加密方式，RC4密钥为<code>edinayarossiya</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/nsN2unkJOvwwlaM6zIfkeFy5vGlbeTkT/2022091630.jpg"><br>我们使用CyberChef随意解密一个字符串可以看到是一个格式化字符串<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fX7sBeV5O9E0yC8O4isx5XaUWX5QnwT6/2022091631.jpg"><br>字符串解密完成会将一部分字符串转为宽字符<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/nhxvYrWGES4KNFR1VEbtcCaHjgTAs26e/2022091632.jpg"><br>接着又解密了加密字符串，此处RC4使用的密钥为<code>59c9737264c0b3209d9193b8ded6c127</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/VGVGKJvynx5WejuCSWr75MhvwEN3R25u/2022091633.jpg"></p>
+<p>使用CyberChef解密字符串，可以看到此字符串为C2的URL<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/6aoBbx3E1jfQm4Pt2K2DMFQ4zKObE5UO/2022091634.jpg"></p>
+<p>接着使用GetUserDefaultLocaleName函数获取用户默认语言环境<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/NHQsfCmUHEQbiFwCABPulxIP2Fetf4M4/2022091635.jpg"></p>
+<p>StrStrIW函数对比当前默认语言环境是否为ru<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/UCEWQIzqQyDBrFPFvwBqeHXmvpzrEpW9/2022091636.jpg"></p>
+<p>使用OpenMutexW打开互斥体<code>8724643052</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YP41vRi58m1cRG5BVGFmsFmch1yVB6RD/2022091637.jpg"></p>
+<p>如果存在互斥体则退出进程，不存在则创建互斥体<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/gortGUPz6vHNeXESXszb1jWO22yxHiND/2022091638.jpg"></p>
+<p>接着获取进程的运行权限是否为S-1-5-18（SECURITY_LOCAL_SYSTEM_RID）<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/XRLeoXnFo8pouV0heqOUgpT4QcSbhkHk/2022091639.jpg"></p>
+<p>通过获取注册表<code>SOFTWARE\\Microsoft\\Cryptography</code>的MachineGuid作为被感染主机的唯一ID<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Ymim9WCqoAFgYonWa6yBP4R554YowIEJ/2022091640.jpg"><br>获取MachineGuid<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/wiwVY8dhYnP8DNY5TRflmFOigfjBMg3u/2022091641.jpg"><br>接着获取了本机用户名<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/j79JxTkdfnqmgzyaVqAHMENyA9VvqcIX/2022091642.jpg"><br>收集完数据拼接字符串，拼接成的格式为：<code>machineId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx|username&amp;configId=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>其中的configId为第二次解密字符串使用的32位RC4密钥<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Xbw2ijOxmg12Uc01Aq7lIg4iR9KLqK3W/2022091643.jpg"><br>然后发送第一次POST请求，如C2存活会返回明文的配置文件，配置文件中包含了要窃取的指定数据<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/lVJlGQCvF7rMRn6TLJdTaoa6LoTYaSFj/2022091644.jpg"><br>解析配置信息的libs字段从C2下载dll<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/s9EQsST8GkVhxjhb6s90fMowLsualdwI/2022091645.jpg"><br>发送get请求下载dll并使用WriteFile函数保存到本地<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vjN1ufdiYdBL4cngGabEqTN6KJCcEkFU/2022091646.jpg"><br>收集基本系统信息并格式化发送POST请求到C2<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/PcpalMVVavjqvKKwn2MuGfQCDsn7UczX/2022091647.jpg"><br>接下来的主要逻辑就是解析配置文件，根据配置文件窃取对应的数据并发送到C2<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/IxSueMz19SD9Dixo4LMy6wljW7afz6Ts/2022091648.jpg"><br>我们查看Chromium浏览器窃取函数，首先遍历硬盘查找User Data目录，基于Chromium开发的浏览器默认的数据保存目录一般都在User Data目录下，比如说chrome浏览器的数据存储在<code>C:\Users\username\AppData\Local\Google\Chrome\User Data</code>，如果存在User Data目录则解密相关数据库并使用sqlite3的sql语句查询数据<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/sKtVQe1BcUP4lqIBeIxpVETOJlONFEfw/2022091649.jpg"><br>从Local State文件读取encrypted_key字段用于解密登录密码，后续解密数据并使用sqlite3语句查询数据<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/y601UkfIn1IxhsHCTWXvdgrnrGFASOCD/2022091650.jpg"><br>Login Data是用于保存Chromium浏览器登录账号密码信息的sqlite3数据库，sqlite3查询chrome浏览器登录密码<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Nh7NgqwfL6UX9lQA0cp1hHTrFWAtDKRL/2022091651.jpg"><br>Chromium浏览器的密码加密方式，版本号80之前的可直接使用CryptUnprotectData函数解密，如果80之后的版本密码会有v10开头的标志，解密需要使用Local State文件的中的encrypted_key字段的Aes密钥进行解密<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fnLj1BROypakKRIhUsS9Ww5hknC3TyGv/2022091652.jpg"><br>打开Network文件夹Cookies数据库文件使用sqlite3 sql语句查询Chromium浏览器cookies<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/y8LLFxLcmxW2HYpY0m4EzEdxLo5hJMwY/2022091653.jpg"><br>sqlite3 sql语句查询Chromium浏览器autofill数据（自动填充账号密码）<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/WPef5BICDlWath3Cihe73QdUd2yAfHDD/2022091654.jpg"><br>打开Web Data数据库文件并使用sqlite3 sql语句查询Chromium浏览器信用卡信息和付款凭证<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/0G9In0EiBOIBPVVEDyjidoYAVD6ndK1k/2022091655.jpg"><br>解析配置文件ews_字段窃取指定浏览器插件的数据，<code>ews_meta_e:ejbalbakoplchlghecdalmeeeajnimhm;MetaMask;Local Extension Settings</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/028UAh6QW7mn5ooAUmvoa4mjr3imex98/2022091656.jpg"><br>遍历硬盘窃取配置文件中指定浏览器插件的数据<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/QopkwqT8QWqLVL9Kkg1HsloHiEBPomnt/2022091657.jpg"><br>获取需要用到的nss3.dll和sqlite3.dll导出函数地址<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/HRhRQeXqkSdr5eSVs23cxEi1htHCAn4w/2022091658.jpg"><br>针对mozilla firefox浏览器用于保存数据的Profiles文件夹进行数据窃取<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/0r96hoci8Q9vctmoQUV7fCkCvjpluTSk/2022091659.jpg"><br>打开cookies.sqlite数据库文件并使用sqlite3 sql语句查询mozilla firefox浏览器cookies<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/W1PjT7eCGCP3B3qAUDiLlA1bwtcrB7l2/2022091660.jpg"><br>读取logins.json文件并解密获取账号密码<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/fWjGklYGszcGKP8sQtfSYc9iq2RMjisX/2022091661.jpg"><br>打开formhistory.sqlite数据库并使用sqlite3 sql语句查询，此数据库中记录着通过 Firefox 搜索框搜索的历史以及在网站填写过的表单<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/qQAOTLk2F6KrAHDwwAV2KaBre9G3lYpA/2022091662.jpg"><br>遍历搜索查找wallet.dat文件<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/vjwF0sWVr6WC7Ud40BD2uP70gReGrK8K/2022091663.jpg"><br>解析配置文件中的grbr_字段，窃取对应路径下的指定文件，配置文件的内容如下<code>grbr_Desktop:%USERPROFILE%\Desktop|*.txt|*recycle*,*windows*|25|1|1|files</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/FfwBpickIuFWdYJ0G7s4WxoaQKFFy2W7/2022091664.jpg"><br>解析配置文件tlgrm_字段，窃取telegram的指定文件数据<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/Brn9dKlng8CNK6WYYWpFjRzHbHjyFlbN/2022091665.jpg"><br>解析配置文件ldr_字段，下载配置文件的payload到指定目录下并运行配置信息如下所示<code>ldr_1:hxxp://172[.]86[.]75[.]189/36141266339446703039[.]bin|%APPDATA%|exe</code><br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/KHwge7t3y4IvPKHwg9flqC62y8NqoE27/2022091666.jpg"><br>如果存在则从C2下载下一阶段的payload并使用ShellExcuteW运行<br><img src="https://lc-gluttony.s3.amazonaws.com/ItdnDM9zGiJj/YsSxQv9XguVXIVzUsub4J1KwYe4wxMwB/2022091667.jpg"></p>
+<p>通过分析未加壳的样本，可以推断出这和现在活跃传播的加壳样本都为RaccoonStealer v2版本并且代码没有太多更改，加壳样本的配置文件中多了xtntns_字段用于窃取密码管理软件的数据，后续的更新可能会增加更多数据的窃取功能并且有可能会增加勒索等功能。 </p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>RaccoonStealer v2通过伪装破解软件下载站，针对搜索引擎的SEO关键词优化达到广泛传播实现信息窃取，并且使用了VMProtect、Themida、ENIGMA等强壳进行代码VM等保护，使用附加大量重复字节膨胀PE文件大小防止被上传沙箱分析等等，尽量不要下载使用破解软件请多支持官方正版软件，不然碰到RaccoonStealer v2这种类型的恶意软件得不偿失。</p>
+<hr />
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>yauv
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://yauv.me/raccoon-stealer-v2-analysis-report.html" title="一次野外偶遇窃密的浣熊RaccoonStealer v2样本分析报告">https://yauv.me/raccoon-stealer-v2-analysis-report.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+        <a target="_blank" class="social-link" href="/atom.xml">
+          <span class="icon">
+            <i class="fa fa-rss"></i>
+          </span>
+
+          <span class="label">RSS</span>
+        </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Raccoon-Stealer-v2/" rel="tag"># Raccoon Stealer v2</a>
+              <a href="/tags/%E7%AA%83%E5%AF%86%E7%9A%84%E6%B5%A3%E7%86%8A/" rel="tag"># 窃密的浣熊</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/brute-ratel-c4-redteam-tools-analysis.html" rel="prev" title="Brute Ratel C4红队框架和EDR的猫鼠游戏">
+                  <i class="fa fa-chevron-left"></i> Brute Ratel C4红队框架和EDR的猫鼠游戏
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yauv</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.0/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
